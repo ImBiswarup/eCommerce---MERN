@@ -1,69 +1,103 @@
-import React, { useEffect, useState } from 'react';
-import { FaRegUser } from "react-icons/fa";
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { FaRegUser, FaBars } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
 
 const Navbar = () => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [showProfileButton, setShowProfileButton] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [menuOpen, setMenuOpen] = useState(false);
 
-    console.log(window.location.pathname);
-
-    useEffect(() => {
-        const toggleProfileButton = () => {
-            if (window.location.pathname.includes('/user')) {
-                setShowProfileButton(false);
-            } else {
-                setShowProfileButton(true);
-            }
-        };
-
-        toggleProfileButton();
-    }, [window.location.pathname]);
+    const location = useLocation(); 
+    const isOnProfilePage = location.pathname.includes("/u");
 
     return (
-        <>
-            <header className="text-gray-400 bg-gray-900 body-font h-28">
-                <div className="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
-                    <Link to='/' className="flex title-font font-medium items-center text-white mb-4 md:mb-0 cursor-pointer">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="w-10 h-10 text-white p-2 bg-indigo-500 rounded-full" viewBox="0 0 24 24">
-                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                        </svg>
-                        <span className="ml-3 text-xl">Tailblocks</span>
-                    </Link>
+        <header className="bg-gray-900 text-white">
+            <div className="container mx-auto flex items-center justify-between p-4">
+                <Link to="/" className="flex items-center text-xl font-semibold">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        className="w-8 h-8 text-white p-1 bg-indigo-500 rounded-full"
+                        viewBox="0 0 24 24"
+                    >
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                    </svg>
+                    <span className="ml-3">Tailblocks</span>
+                </Link>
 
-                    {/* Search Bar */}
-                    <div className="relative flex justify-center items-center flex-grow md:w-1/2 mt-4 md:mt-0 mx-4">
+                <div className="relative flex-grow max-w-md mx-4">
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Search..."
+                        className="w-full py-2 pl-4 pr-12 rounded-lg bg-gray-800 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    />
+                    <button
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                        onClick={() => console.log(searchTerm)}
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            className="w-5 h-5"
+                            viewBox="0 0 24 24"
+                        >
+                            <path d="M21 21l-4.35-4.35M18.65 10.65A7.5 7.5 0 1 0 10.65 18.65 7.5 7.5 0 1 0 18.65 10.65z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+
+                <div className="flex items-center">
+                    {!isOnProfilePage && (
+                        <Link
+                            to={`/u/10`}
+                            className="hidden md:flex items-center bg-gray-800 py-2 px-4 rounded-full hover:bg-gray-700"
+                        >
+                            <FaRegUser className="mr-2" />
+                            <span>Profile</span>
+                        </Link>
+                    )}
+
+                    <button
+                        className="md:hidden flex items-center text-xl p-2 focus:outline-none"
+                        onClick={() => setMenuOpen(!menuOpen)}
+                    >
+                        <FaBars />
+                    </button>
+                </div>
+            </div>
+
+            {menuOpen && (
+                <div className="md:hidden bg-gray-800 text-white p-4">
+                    <div className="mb-4">
                         <input
                             type="text"
                             value={searchTerm}
-                            onChange={(e) => { setSearchTerm(e.target.value) }}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                             placeholder="Search..."
-                            className="text-white w-full py-2 pl-10 pr-4 rounded-full bg-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            className="w-full py-2 px-4 rounded-lg bg-gray-700 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
-                        <button
-                            className="absolute right-0 top-0 mt-2 mr-3 text-gray-400 hover:text-white"
-                            onClick={() => { console.log(searchTerm) }} // Use this to handle search
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="w-5 h-5" viewBox="0 0 24 24">
-                                <path d="M21 21l-4.35-4.35M18.65 10.65A7.5 7.5 0 1 0 10.65 18.65 7.5 7.5 0 1 0 18.65 10.65z"></path>
-                            </svg>
-                        </button>
                     </div>
-
-                    {/* User Profile Button */}
-                    {showProfileButton && (
-                        <Link to={`/user/10`}>
-                            <button className="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded-full text-base mt-4 md:mt-0">
-                                <FaRegUser />
-                                <svg fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" className="w-4 h-4 ml-1" viewBox="0 0 24 24">
-                                    <path d="M5 12h14M12 5l7 7-7 7"></path>
-                                </svg>
-                            </button>
+                    {!isOnProfilePage && (
+                        <Link
+                            to={`/u/10`}
+                            className="block w-full py-2 text-center bg-gray-700 rounded-lg hover:bg-gray-600"
+                        >
+                            Profile
                         </Link>
                     )}
                 </div>
-            </header>
-        </>
+            )}
+        </header>
     );
 };
 
