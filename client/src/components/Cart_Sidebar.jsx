@@ -1,10 +1,14 @@
 import React from 'react';
-import { FaTimes, FaShoppingCart } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
+import { useAppContext } from '../context/AppContext';
 
-const Cart_Sidebar = ({ isOpen, closeSidebar, cartItems }) => {
+const Cart_Sidebar = ({ isOpen, closeSidebar, cartItems, cartItem }) => {
+    const {
+        user,
+    } = useAppContext();
     return (
         <div
-            className={`fixed top-0 right-0 z-50 w-80 bg-gray-900 text-white h-full transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+            className={`fixed top-0 right-0 z-50 w-96 bg-gray-900 text-white h-full transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
         >
             <div className="flex justify-between items-center p-4 border-b border-gray-700">
                 <h2 className="text-xl font-semibold">Your Cart</h2>
@@ -12,7 +16,7 @@ const Cart_Sidebar = ({ isOpen, closeSidebar, cartItems }) => {
                     <FaTimes />
                 </button>
             </div>
-            
+
             <div className="px-4 py-2 overflow-y-auto">
                 {cartItems.length === 0 ? (
                     <p className="text-center text-gray-400">Your cart is empty</p>

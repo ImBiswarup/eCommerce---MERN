@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import axios from "axios";
-
+import Cookies from 'js-cookie';
 
 const UserAuthModal = ({ setIsModalOpen }) => {
     const [currentScreen, setCurrentScreen] = useState("signup");
@@ -39,6 +39,7 @@ const UserAuthModal = ({ setIsModalOpen }) => {
             alert(response.data.message);
             setUser(response.data)
             setIsModalOpen(false);
+            Cookies.set('token', response.data.token)
         } catch (error) {
             alert(`Login failed: ${error.message}`);
         }

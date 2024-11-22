@@ -1,42 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaRegUser, FaBars, FaShoppingCart } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import UserAuthModal from "./userAuthModal";  // Authentication modal
+import UserAuthModal from "./userAuthModal";
 import { useAppContext } from "../context/AppContext";
-import Cart_Sidebar from "./Cart_Sidebar";  // Cart Sidebar
+import Cart_Sidebar from "./Cart_Sidebar";
+
 
 const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [menuOpen, setMenuOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isCartOpen, setIsCartOpen] = useState(false); // State for Cart Sidebar
+    const [isCartOpen, setIsCartOpen] = useState(false);
 
-    const {
-        user, setUser,
-        username, setUsername,
-        email, setEmail,
-        password, setPassword,
-        image, setImage,
-    } = useAppContext();
+    const { userData } = useAppContext(); 
+
 
     const navigate = useNavigate();
     const location = useLocation();
     const isOnProfilePage = location.pathname.includes("/u");
 
-    // Handle profile button click
     const handleProfileClick = () => {
-        if (user) {
-            navigate(`/u/${user.user._id}`); // Navigate to user's profile
+        if (userData) {
+            navigate(`/u/${userData.id}`);
         } else {
-            setIsModalOpen(true); // Show modal if not logged in
+            setIsModalOpen(true);
         }
     };
 
-    // Dummy cart items for illustration
-    const cartItems = [
-        { id: 1, name: "Item 1", price: 29.99, image: "https://via.placeholder.com/150" },
-        { id: 2, name: "Item 2", price: 19.99, image: "https://via.placeholder.com/150" },
-    ];
+
 
     return (
         <header className="bg-gray-900 text-white">
@@ -85,8 +76,7 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex items-center space-x-4">
-                    {/* Profile Button for Desktop */}
-                    {!isOnProfilePage && user && (
+                    {!isOnProfilePage && userData && (
                         <button
                             onClick={handleProfileClick}
                             className="hidden md:flex items-center bg-gray-800 py-2 px-4 rounded-full hover:bg-gray-700"
@@ -96,8 +86,7 @@ const Navbar = () => {
                         </button>
                     )}
 
-                    {/* Show Register Button on Mobile */}
-                    {!isOnProfilePage && !user && (
+                    {!isOnProfilePage && !userData && (
                         <button
                             onClick={handleProfileClick}
                             className="hidden md:flex items-center bg-gray-800 py-2 px-4 rounded-full hover:bg-gray-700"
@@ -107,17 +96,15 @@ const Navbar = () => {
                         </button>
                     )}
 
-                    {/* Cart Icon */}
                     <button
-                        onClick={() => setIsCartOpen(!isCartOpen)} // Toggle cart sidebar
-                        className="flex items-center text-white hover:text-gray-400"
+                        onClick={() => setIsCartOpen(!isCartOpen)}
+                        className={`${isOnProfilePage ? "hidden" : ""} flex items-center text-white hover:text-gray-400`}
                     >
                         <FaShoppingCart className="w-6 h-6" />
                     </button>
 
-                    {/* Mobile Menu Button */}
                     <button
-                        className="md:hidden flex items-center text-xl p-2 focus:outline-none"
+                        className={`${isOnProfilePage ? "hidden" : ""} md:hidden flex items-center text-xl p-2 focus:outline-none`}
                         onClick={() => setMenuOpen(!menuOpen)}
                     >
                         <FaBars />
@@ -125,7 +112,6 @@ const Navbar = () => {
                 </div>
             </div>
 
-            {/* Mobile Menu */}
             {menuOpen && (
                 <div className="md:hidden bg-gray-800 text-white p-4">
                     <div className="mb-4">
@@ -141,20 +127,18 @@ const Navbar = () => {
                         onClick={handleProfileClick}
                         className="block w-full py-2 text-center bg-gray-700 rounded-lg hover:bg-gray-600"
                     >
-                        {user ? 'Profile' : "Register"}
+                        {userData ? 'Profile' : "Register"}
                     </button>
                 </div>
             )}
 
-            {/* Auth Modal */}
             {isModalOpen && <UserAuthModal setIsModalOpen={setIsModalOpen} />}
 
-            {/* Cart Sidebar */}
             {isCartOpen && (
                 <Cart_Sidebar
                     isOpen={isCartOpen}
                     closeSidebar={() => setIsCartOpen(false)}
-                    cartItems={cartItems}
+                    cartItems={userData?.userCart?.cart}
                 />
             )}
         </header>

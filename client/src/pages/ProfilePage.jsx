@@ -1,38 +1,37 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import { useAppContext } from '../context/AppContext';
+import Cookies from 'js-cookie';
 
 const ProfilePage = () => {
-  const {
-    user,
-    cart,        // User's cart items
-    wishlist,    // User's wishlist items
-  } = useAppContext();
+  const { userData, Logout } = useAppContext();
 
-  const { userId } = useParams(); // Extract userId from URL params
+  const [cartItems, setCartItems] = useState([]);
+  const [wishlistItems, setWishlistItems] = useState([]);
 
-  // Placeholder for cart and wishlist data
-  const cartItems = cart || [
-    { id: 1, name: 'Wireless Headphones', price: 89.99, image: 'https://via.placeholder.com/150' },
-    { id: 2, name: 'Smartwatch', price: 199.99, image: 'https://via.placeholder.com/150' },
-  ];
+  useEffect(() => {
+    if (userData) {
+      setCartItems(userData?.userCart?.cart || []);
+      setWishlistItems(userData?.userCart?.wishlist || []);
+    }
+  }, [userData]);
 
-  const wishlistItems = wishlist || [
-    { id: 1, name: 'Laptop', price: 999.99, image: 'https://via.placeholder.com/150' },
-    { id: 2, name: 'Gaming Console', price: 299.99, image: 'https://via.placeholder.com/150' },
-  ];
+
+
+  if (!userData) {
+    return <div>Loading...</div>;
+  }
+
 
   return (
     <div className="flex flex-col lg:flex-row bg-gray-50 min-h-screen">
-      {/* Sidebar for profile navigation */}
       <div className="lg:w-1/4 bg-gray-800 text-white p-6 lg:block hidden">
         <div className="text-center mb-8">
           <img
-            src={user?.user?.userImageUrl || 'https://via.placeholder.com/150'}
+            src={userData.imageUrl || 'https://via.placeholder.com/150'}
             alt="User Avatar"
             className="w-32 h-32 rounded-full mx-auto"
           />
-          <h2 className="mt-4 text-xl font-semibold">{user?.user?.username}</h2>
+          <h2 className="mt-4 text-xl font-semibold">{userData.name}</h2>
         </div>
         <ul className="space-y-4">
           <li>
@@ -41,35 +40,34 @@ const ProfilePage = () => {
             </button>
           </li>
           <li>
-            <button className="w-full text-left py-2 px-4 bg-gray-700 hover:bg-red-600 rounded-md">
+            <button
+              onClick={Logout}
+              className="w-full text-left py-2 px-4 bg-gray-700 hover:bg-red-600 rounded-md">
               Logout
             </button>
           </li>
         </ul>
       </div>
 
-      {/* Main Profile Content */}
       <div className="lg:w-3/4 p-8 space-y-8">
-        {/* User Info Section */}
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h3 className="text-2xl font-semibold mb-4">Profile Information</h3>
-          <div className="flex flex-col lg:flex-row space-x-6">
-            <div>
+          <div className="flex flex-col lg:flex-row space-x-4">
+            <div className='flex gap-2'>
               <p className="font-medium text-gray-700">Username:</p>
-              <p>{user?.user?.username}</p>
+              <p>{userData.name}</p>
             </div>
-            <div>
+            <div className='flex gap-2'>
               <p className="font-medium text-gray-700">Email:</p>
-              <p>{user?.user?.email}</p>
+              <p>{userData.email}</p>
             </div>
-            <div>
+            <div className='flex gap-2'>
               <p className="font-medium text-gray-700">Account Created:</p>
-              <p>{new Date(user?.user?.createdAt).toLocaleDateString()}</p>
+              <p>{new Date(userData.createdAt).toLocaleDateString()}</p>
             </div>
           </div>
         </div>
 
-        {/* Cart Section */}
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h3 className="text-2xl font-semibold mb-4">Shopping Cart</h3>
           <div className="space-y-4">
@@ -99,7 +97,6 @@ const ProfilePage = () => {
           </div>
         </div>
 
-        {/* Wishlist Section */}
         <div className="bg-white p-6 rounded-lg shadow-lg">
           <h3 className="text-2xl font-semibold mb-4">Wishlist</h3>
           <div className="space-y-4">
