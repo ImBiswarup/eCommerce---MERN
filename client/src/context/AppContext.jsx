@@ -1,13 +1,22 @@
 import React, { createContext, useContext, useState } from 'react';
-
+import axios from 'axios';
 export const Appcontext = createContext();
 
 const AppContext = ({ children }) => {
-    const [user, setuser] = useState('Biswa')
+    const [user, setUser] = useState('')
+    const [username, setUsername] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [image, setImage] = useState('')
+
 
     return (
         <Appcontext.Provider value={{
-            user, setuser
+            user, setUser,
+            username, setUsername,
+            email, setEmail,
+            password, setPassword,
+            image, setImage,
         }}>
             {children}
         </Appcontext.Provider>

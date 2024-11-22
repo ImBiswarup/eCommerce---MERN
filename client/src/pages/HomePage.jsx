@@ -6,9 +6,12 @@ import { Data } from '../utils/Data';
 
 const HomePage = () => {
 
-  const { user } = useAppContext();
-  console.log(user);
-  
+  const { user, setUser,
+    username, setUsername,
+    email, setEmail,
+    password, setPassword,
+    signupHandler } = useAppContext();
+
   return (
     <>
       <section className="text-gray-400 bg-gray-900 body-font">
