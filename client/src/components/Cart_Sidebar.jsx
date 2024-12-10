@@ -1,58 +1,126 @@
-import React from 'react';
-import { FaTimes } from 'react-icons/fa';
-import { useAppContext } from '../context/AppContext';
+import React, { useEffect, useState } from "react";
+import { FaTimes } from "react-icons/fa";
+import UserAuthModal from "./UserAuthModal";
+import { useAppContext } from "../context/AppContext";
 
-const Cart_Sidebar = ({ isOpen, closeSidebar, cartItems, cartItem }) => {
-    const {
-        user,
-    } = useAppContext();
+
+
+const Cart_Sidebar = ({ isOpen, closeSidebar }) => {
+  const { userData, fetchUserCart, cartItems, RemoveFromCart } = useAppContext();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+
+  useEffect(() => {
+    fetchUserCart()
+  }, [userData, cartItems])
+
+  // const CartItemId = cartItems?.map((item) => item.item._id)
+  // console.log(CartItemId);
+  // console.log(selectedItem);
+
+  if (!userData) {
     return (
+      <>
+        {/* Sidebar */}
         <div
-            className={`fixed top-0 right-0 z-50 w-96 bg-gray-900 text-white h-full transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+          className={`fixed top-0 right-0 z-50 w-full sm:w-96 bg-gray-800 text-white h-full transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"
+            }`}
         >
-            <div className="flex justify-between items-center p-4 border-b border-gray-700">
-                <h2 className="text-xl font-semibold">Your Cart</h2>
-                <button onClick={closeSidebar} className="text-2xl text-gray-400 hover:text-white">
-                    <FaTimes />
-                </button>
-            </div>
-
-            <div className="px-4 py-2 overflow-y-auto">
-                {cartItems.length === 0 ? (
-                    <p className="text-center text-gray-400">Your cart is empty</p>
-                ) : (
-                    cartItems.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between py-2 border-b border-gray-700">
-                            <div className="flex items-center space-x-2">
-                                <img
-                                    src={item.image}
-                                    alt={item.name}
-                                    className="w-16 h-16 object-cover"
-                                />
-                                <div>
-                                    <p className="font-medium text-gray-300">{item.name}</p>
-                                    <p className="text-sm text-gray-500">${item.price}</p>
-                                </div>
-                            </div>
-                            <button className="text-sm text-red-500 hover:text-red-700">
-                                Remove
-                            </button>
-                        </div>
-                    ))
-                )}
-            </div>
-
-            <div className="px-4 py-2 border-t border-gray-700 mt-4">
-                <div className="flex justify-between items-center">
-                    <p className="text-lg">Total:</p>
-                    <p className="text-lg font-semibold">${cartItems.reduce((total, item) => total + item.price, 0).toFixed(2)}</p>
-                </div>
-                <button className="w-full py-2 mt-4 bg-indigo-600 rounded-md text-white hover:bg-indigo-700">
-                    Checkout
-                </button>
-            </div>
+          <div className="flex justify-between items-center p-4 border-b border-gray-700">
+            <h2 className="text-xl font-semibold">Please Sign In</h2>
+            <button onClick={closeSidebar} className="text-2xl text-gray-400 hover:text-white">
+              <FaTimes />
+            </button>
+          </div>
+          <div className="flex flex-col items-center justify-center h-full space-y-6">
+            <p className="text-gray-400">You need to sign in to access your cart.</p>
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="bg-indigo-600 px-6 py-2 rounded-md text-white hover:bg-indigo-700 transition"
+            >
+              Sign In
+            </button>
+          </div>
         </div>
+
+        {/* Auth Modal */}
+        {isAuthModalOpen && <UserAuthModal setIsModalOpen={setIsAuthModalOpen} />}
+      </>
     );
+  }
+
+  return (
+    <div
+      className={`fixed top-0 right-0 z-50 w-full sm:w-96 bg-gray-900 text-white h-full transform transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+    >
+      {/* Header */}
+      <div className="flex justify-between items-center p-4 border-b border-gray-700">
+        <h2 className="text-xl font-semibold">Your Cart</h2>
+        <button onClick={closeSidebar} className="text-2xl text-gray-400 hover:text-white">
+          <FaTimes />
+        </button>
+      </div>
+
+      {/* Cart Items */}
+      <div className="px-4 py-2 overflow-y-auto h-[calc(100%-13rem)]">
+        {cartItems?.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full">
+            <p className="text-center text-gray-400">Your cart is empty</p>
+            <img
+              src="https://via.placeholder.com/150"
+              alt="Empty cart"
+              className="mt-4 w-36"
+            />
+          </div>
+        ) : (
+          cartItems?.map((item) => (
+            <div
+              key={item._id}
+              className="flex items-center justify-between py-4 border-b border-gray-700"
+            >
+              <div className="flex items-center space-x-4">
+                <img
+                  src={item.item.imageUrl || "https://via.placeholder.com/50"}
+                  alt={item.item.name || "Unknown Item"}
+                  className="w-16 h-16 object-cover rounded-md border border-gray-700"
+                />
+                <div>
+                  <p onClick={() => { console.log(item.item.name) }} o className="font-medium text-gray-300">{item.item.name || "Unknown Item"}</p>
+                  <p className="text-sm text-gray-500">
+                    ${item.item.price?.toFixed(2) || "0.00"}
+                  </p>
+                  <p className="text-sm text-gray-500">Quantity: {item.quantity}</p>
+                </div>
+              </div>
+              <button
+                className="text-sm text-red-500 hover:text-red-700"
+                onClick={() => RemoveFromCart(item.item._id)}
+              >
+                Remove
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="px-4 py-4 border-t border-gray-700 overflow-x-auto">
+        <div className="flex justify-between items-center">
+          <p className="text-lg">Total:</p>
+          <p className="text-lg font-semibold">
+            ${cartItems?.reduce((total, item) => total + item.item.price * item.quantity, 0).toFixed(2)}
+          </p>
+        </div>
+        <button
+          className="w-full py-3 mt-4 bg-indigo-600 rounded-lg text-white hover:bg-indigo-700 transition"
+          onClick={() => { console.log(cartItems); }}
+        >
+          Checkout
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default Cart_Sidebar;

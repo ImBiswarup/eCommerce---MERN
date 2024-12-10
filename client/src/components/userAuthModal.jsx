@@ -5,6 +5,7 @@ import Cookies from 'js-cookie';
 
 const UserAuthModal = ({ setIsModalOpen }) => {
     const [currentScreen, setCurrentScreen] = useState("signup");
+    const apiUrl = process.env.VITE_API_URL;
 
     const {
         user, setUser,
@@ -12,14 +13,15 @@ const UserAuthModal = ({ setIsModalOpen }) => {
         email, setEmail,
         password, setPassword,
         image, setImage,
+        role, setRole
     } = useAppContext();
 
     const handleSignup = async (e) => {
         e.preventDefault();
-        console.log({ username, email, password });
+        // console.log({ username, email, password });
         try {
-            const response = await axios.post('http://localhost:3000/api/user/signup', {
-                username, email, password,
+            const response = await axios.post(`${apiUrl}/api/user/signup`, {
+                username, email, password, role
             });
             console.log(response.data);
             setCurrentScreen("login");
@@ -27,18 +29,16 @@ const UserAuthModal = ({ setIsModalOpen }) => {
             alert(`Signup failed: ${error.message}`);
         }
     };
-    
-
 
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:3000/api/user/login', {
+            const response = await axios.post(`${apiUrl}/api/user/login`, {
                 email, password
             })
-            alert(response.data.message);
             setUser(response.data)
             setIsModalOpen(false);
+            alert(`Welcome ${response.data.user.username}`);
             Cookies.set('token', response.data.token)
         } catch (error) {
             alert(`Login failed: ${error.message}`);
@@ -125,6 +125,24 @@ const UserAuthModal = ({ setIsModalOpen }) => {
                                     className="bg-gray-50 border text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                                 />
                             </div>
+
+                            <div>
+                                <label
+                                    htmlFor="isSeller"
+                                    className="flex items-center mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        id="isSeller"
+                                        checked={role === "Seller"}
+                                        onChange={(e) => setRole(e.target.checked ? "Seller" : "Customer")}
+                                        className="mr-2 text-blue-600 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:focus:ring-offset-gray-800 dark:border-gray-700"
+                                    />
+                                    Are you a seller?
+                                </label>
+                            </div>
+
+
                             <div>
                                 <label
                                     htmlFor="image"

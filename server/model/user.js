@@ -1,45 +1,71 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema({
+const cartItemSchema = new mongoose.Schema({
+  item: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Item",
+  },
+  quantity: {
+    type: Number,
+    min: 1,
+  },
+});
+
+const userSchema = new mongoose.Schema(
+  {
     username: {
-        type: String,
-        required: true,
+      type: String,
+      required: true,
     },
     email: {
-        type: String,
-        required: true,
-        unique: true,
-        match: [
-            /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-            "Please provide a valid email address.",
-        ],
+      type: String,
+      required: true,
+      unique: true,
+      match: [
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        "Please provide a valid email address.",
+      ],
     },
     password: {
-        type: String,
-        required: true,
-        minlength: 6,
+      type: String,
+      required: true,
+      minlength: 6,
     },
     userImageUrl: {
-        type: String,
-        // unique: true,
-        default: "https://res.cloudinary.com/djrdw0sqz/image/upload/v1725100842/myImg_q3lyty.jpg"
+      type: String,
+      required: true,
+      default:
+        "https://res.cloudinary.com/djrdw0sqz/image/upload/v1725100842/myImg_q3lyty.jpg",
+    },
+    role: {
+      type: String,
+      required: true,
+      default: "Customer",
+      enum: ["Customer", "Seller"],
     },
     userCart: {
-        wishlist: {
-            type: Array,
-            default: [],
+      wishlist: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Item",
         },
-        cart: {
-            type: Array,
-            default: [],
-        },
+      ],
+      cart: [cartItemSchema],
     },
+    addedItems: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Item",
+      },
+    ], 
     token: {
-        type: String,
-        unique: true,
+      type: String,
+      unique: true,
     },
-}, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

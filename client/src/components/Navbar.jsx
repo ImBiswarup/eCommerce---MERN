@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { FaRegUser, FaBars, FaShoppingCart } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import UserAuthModal from "./userAuthModal";
 import { useAppContext } from "../context/AppContext";
 import Cart_Sidebar from "./Cart_Sidebar";
+import UserAuthModal from "./UserAuthModal";
+import Cookies from "js-cookie"
 
 
 const Navbar = () => {
@@ -11,8 +12,15 @@ const Navbar = () => {
     const [menuOpen, setMenuOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [token, setToken] = useState('')
+    const { userData } = useAppContext();
 
-    const { userData } = useAppContext(); 
+    console.log(userData?.role);
+
+    // useEffect(() => {
+    //     const receivedToken = Cookies.get("token");
+    //     setToken(receivedToken);
+    // }, [token])
 
 
     const navigate = useNavigate();
@@ -27,6 +35,7 @@ const Navbar = () => {
         }
     };
 
+    console.log(userData);
 
 
     return (
@@ -76,7 +85,7 @@ const Navbar = () => {
                 </div>
 
                 <div className="flex items-center space-x-4">
-                    {!isOnProfilePage && userData && (
+                    {userData && !isOnProfilePage && (
                         <button
                             onClick={handleProfileClick}
                             className="hidden md:flex items-center bg-gray-800 py-2 px-4 rounded-full hover:bg-gray-700"
@@ -86,7 +95,7 @@ const Navbar = () => {
                         </button>
                     )}
 
-                    {!isOnProfilePage && !userData && (
+                    {!userData && !isOnProfilePage && (
                         <button
                             onClick={handleProfileClick}
                             className="hidden md:flex items-center bg-gray-800 py-2 px-4 rounded-full hover:bg-gray-700"
@@ -114,7 +123,7 @@ const Navbar = () => {
 
             {menuOpen && (
                 <div className="md:hidden bg-gray-800 text-white p-4">
-                    <div className="mb-4">
+                    {/* <div className="mb-4">
                         <input
                             type="text"
                             value={searchTerm}
@@ -122,12 +131,12 @@ const Navbar = () => {
                             placeholder="Search..."
                             className="w-full py-2 px-4 rounded-lg bg-gray-700 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
-                    </div>
+                    </div> */}
                     <button
                         onClick={handleProfileClick}
                         className="block w-full py-2 text-center bg-gray-700 rounded-lg hover:bg-gray-600"
                     >
-                        {userData ? 'Profile' : "Register"}
+                        {token ? 'Profile' : "Register"}
                     </button>
                 </div>
             )}

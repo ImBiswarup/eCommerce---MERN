@@ -1,25 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Link } from 'react-router-dom';
-import { Data } from '../utils/Data';
 
 
 const HomePage = () => {
 
-  const { user, setUser,
-    username, setUsername,
-    email, setEmail,
-    password, setPassword,
-    signupHandler } = useAppContext();
+  const { allItems } = useAppContext();
+  // console.log("all items: ", allItems);
+
+  
 
   return (
     <>
       <section className="text-gray-400 bg-gray-900 body-font">
         <div className="container px-5 py-20 mx-auto">
           <div className="flex flex-wrap -m-4">
-
             {
-              Data.map((item) => (
+              allItems?.map((item) => (
                 <Link key={item._id} to={`${item._id}`} className="lg:w-1/4 md:w-1/2 p-4 w-full cursor-pointer gap-5 ">
                   <a className="block relative h-48 rounded overflow-hidden">
                     <img alt="ecommerce" className="object-center w-full h-full block object-cover" src={item.imageUrl} />
@@ -32,7 +29,6 @@ const HomePage = () => {
                 </Link>
               ))
             }
-
           </div>
         </div>
       </section>
