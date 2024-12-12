@@ -5,16 +5,20 @@ import { useAppContext } from "../context/AppContext";
 import { Link, useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
+  const [addedItens, setAddedItens] = useState([])
   const navigate = useNavigate()
   const { userData, Logout, allItems, cartItems, setCartItems,
     wishlistItems, setWishlistItems, fetchUserCart, loading, setLoading, RemoveFromCart, selectedItem, sellerProducts, setsellerProducts } = useAppContext();
 
-  console.log(cartItems.length >= 1 ? "there is some cartitems" : "there is nothing");
-  useEffect(() => {
-    fetchUserCart()
-  }, [userData]);
+  console.log(allItems);
 
-  console.log(userData);
+  // const userAddedItems = allItems?.filter((item) => item?._id === userData?.addedItems?._id)
+  // console.log(userAddedItems?.length);
+
+  const userAddedItems = allItems?.filter((item) =>
+    userData?.addedItems?.includes(item?._id)
+  );
+  console.log(userAddedItems);
 
   if (!userData || loading) {
     return <div>Loading...</div>;
@@ -171,8 +175,8 @@ const ProfilePage = () => {
                 </button>
                 <div className="mt-6">
                   <h4 className="text-xl font-semibold mb-2">Your Products</h4>
-                  {sellerProducts?.length > 0 ? (
-                    sellerProducts?.map((product) => (
+                  {userAddedItems?.length > 0 ? (
+                    userAddedItems.map((product) => (
                       <div
                         key={product._id}
                         className="flex justify-between items-center border-b py-2"

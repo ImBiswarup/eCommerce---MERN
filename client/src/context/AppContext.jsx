@@ -20,92 +20,100 @@ const AppContext = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [actulaUser, setActulaUser] = useState([])
   const [role, setRole] = useState('User');
+
+
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [category, setCategory] = useState('');
+  const [description, setdescription] = useState('');
+
   const apiUrl = process.env.VITE_API_URL;
 
-  // useEffect(() => {
-  //   const token = Cookies.get('token');
-  //   if (!token) {
-  //     console.log('no token');
-  //   }
-  //   if (token) {
-  //     try {
-  //       const decoded = jwtDecode(token);
-  //       console.log(decoded);
-  //       setUserData(decoded);
-  //     } catch (error) {
-  //       console.error("Error decoding token:", error);
-  //     }
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   const getTheUser = async () => {
-  //     try {
-  //       const receivedToken = Cookies.get("token");
-  //       console.log("receivedToken: ", receivedToken);
-
-  //       if (!receivedToken) {
-  //         console.warn("No token found in cookies.");
-  //         return;
-  //       }
-
-  //       // Fetch all users
-  //       const res = await axios.get(`${apiUrl}/api/user/allUsers`);
-  //       console.log(res.data);
-
-  //       // Find the user based on the token
-  //       const foundUser = res.data.find((user) => user.token === receivedToken);
-
-  //       if (foundUser) {
-  //         console.log("User found: ", foundUser);
-  //         setActulaUser(foundUser);
-  //       } else {
-  //         console.warn("User with the received token not found.");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user data: ", error.message);
-  //     }
-  //   };
-
-  //   getTheUser();
-  // }, []); // Empty dependency array ensures it runs only once on mount
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (!token) {
+      console.log('no token');
+    }
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        console.log("Decoded token value : ", decoded);
+        setUserData(decoded);
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    }
+  }, []);
 
   useEffect(() => {
-    const getUserDetails = async () => {
+    const getTheUser = async () => {
       try {
-        const token = Cookies.get("token");
+        const receivedToken = Cookies.get("token");
+        console.log("receivedToken: ", receivedToken);
 
-        if (!token) {
+        if (!receivedToken) {
           console.warn("No token found in cookies.");
           return;
         }
 
-        // Decode the token
-        const decoded = jwtDecode(token);
-        console.log("Decoded token:", decoded);
-        setUserData(decoded);
-
         // Fetch all users
         const res = await axios.get(`${apiUrl}/api/user/allUsers`);
-        console.log("All users fetched:", res.data);
+        console.log(res.data);
 
         // Find the user based on the token
-        const foundUser = res.data.find((user) => user.token === token);
+        const foundUser = res.data.find((user) => user.token === receivedToken);
 
         if (foundUser) {
-          console.log("User found:", foundUser);
-          setUserData(foundUser);
-          setsellerProducts(foundUser?.addedItems)
-          console.log(sellerProducts);
+          console.log("User found: ", foundUser);
+          setActulaUser(foundUser);
         } else {
-          console.warn("User with the token not found in database.");
+          console.warn("User with the received token not found.");
         }
       } catch (error) {
-        console.error("Error fetching or decoding token:", error.message);
+        console.error("Error fetching user data: ", error.message);
       }
     };
-    getUserDetails();
-  }, []); 
+
+    getTheUser();
+  }, []); // Empty dependency array ensures it runs only once on mount
+
+  // useEffect(() => {
+  //   const getUserDetails = async () => {
+  //     try {
+  //       const token = Cookies.get("token");
+
+  //       if (!token) {
+  //         console.warn("No token found in cookies.");
+  //         return;
+  //       }
+
+  //       // Decode the token
+  //       const decoded = jwtDecode(token);
+  //       console.log("Decoded token:", decoded);
+  //       setUserData(decoded);
+
+  //       // Fetch all users
+  //       const res = await axios.get(`${apiUrl}/api/user/allUsers`);
+  //       console.log("All users fetched:", res.data);
+
+  //       // Find the user based on the token
+  //       const foundUser = res.data.find((user) => user.token === token);
+
+  //       if (foundUser) {
+  //         console.log("User found:", foundUser);
+  //         setUserData(foundUser);
+  //         setsellerProducts(foundUser?.addedItems)
+  //         console.log(sellerProducts);
+  //       } else {
+  //         console.warn("User with the token not found in database.");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching or decoding token:", error.message);
+  //     }
+  //   };
+  //   getUserDetails();
+  // }, []);
 
   const Logout = () => {
     Cookies.remove('token');
@@ -209,10 +217,36 @@ const AppContext = ({ children }) => {
   }, [userData]);
 
   const addItems = async () => {
-    const response = await axios.post(`${apiUrl}/item/add-items`, {
+    try {
+      const token = Cookies.get("token"); // Retrieve token from cookies
 
-    })
+      if (!token) {
+        console.error("No token found. Cannot authorize the request.");
+        return;
+      }
+
+      const response = await axios.post(
+        `${apiUrl}/api/item/add-items`,
+        {
+          name,
+          price,
+          imageUrl,
+          category,
+          description,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      console.log("Item added successfully:", response.data);
+    } catch (error) {
+      console.error("Error adding item:", error.response?.data || error.message);
+    }
   };
+
 
   return (
     <Appcontext.Provider value={{
@@ -231,7 +265,13 @@ const AppContext = ({ children }) => {
       cartItems, setCartItems,
       sellerProducts, setsellerProducts,
       wishlistItems, setWishlistItems, fetchUserCart,
-      role, setRole
+      role, setRole,
+      name, setName,
+      price, setPrice,
+      imageUrl, setImageUrl,
+      category, setCategory,
+      description, setdescription,
+      addItems
     }}>
       {children}
     </Appcontext.Provider>

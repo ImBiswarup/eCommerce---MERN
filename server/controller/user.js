@@ -98,7 +98,6 @@ const getCartItems = async (req, res) => {
 };
 
 
-
 const addToCart = async (req, res) => {
   const { itemQuantity, cartItem } = req.body;
 
@@ -179,8 +178,6 @@ const removeFromCart = async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 };
-
-
 
 const getAllUsers = async (req, res) => {
   const allUsers = await User.find({})

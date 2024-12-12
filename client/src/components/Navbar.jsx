@@ -35,9 +35,6 @@ const Navbar = () => {
         }
     };
 
-    console.log(userData);
-
-
     return (
         <header className="bg-gray-900 text-white">
             <div className="container mx-auto flex items-center justify-between p-4">

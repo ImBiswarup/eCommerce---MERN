@@ -5,11 +5,17 @@ import { useAppContext } from '../context/AppContext';
 const AddProducts = () => {
     const apiUrl = import.meta.env.VITE_API_URL;
 
-    const [name, setName] = useState('');
-    const [price, setPrice] = useState('');
-    const [imageUrl, setImageUrl] = useState('');
-    const [category, setCategory] = useState('');
-    const [description, setdescription] = useState('');
+    // const [name, setName] = useState('');
+    // const [price, setPrice] = useState('');
+    // const [imageUrl, setImageUrl] = useState('');
+    // const [category, setCategory] = useState('');
+    // const [description, setdescription] = useState('');
+
+    const { name, setName,
+        price, setPrice,
+        imageUrl, setImageUrl,
+        category, setCategory,
+        description, setdescription, addItems } = useAppContext();
 
     const { userData } = useAppContext();
     console.log(userData?.role);
@@ -123,6 +129,7 @@ const AddProducts = () => {
                         ></textarea>
                     </div>
                     <button
+                        onClick={addItems}
                         type="submit"
                         className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
                     >

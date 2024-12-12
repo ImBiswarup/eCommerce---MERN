@@ -4,7 +4,8 @@ const User = require("../model/user");
 const addItems = async (req, res) => {
     try {
         const { name, price, imageUrl, category, description } = req.body;
-        const userId  = req.user._id;
+        console.log(req.user);
+        const userId = req.user._id;
         if (!name || !price || !category || !description || !userId) {
             return res.status(400).json({ message: "All fields are required." });
         }
@@ -23,13 +24,15 @@ const addItems = async (req, res) => {
             imageUrl,
             category,
             description,
+            createdBy: req.user,
         });
 
         // Save the item to the database
         const savedItem = await newItem.save();
 
         // Add the item ID to the seller's addedItems
-        user.addedItems.push(savedItem._id);
+        // user.addedItems.push(savedItem);
+        user.addedItems = savedItem;
         await user.save();
 
         res.status(201).json({
