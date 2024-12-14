@@ -1,26 +1,18 @@
 import React, { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Data } from "../utils/Data";
 import { useAppContext } from "../context/AppContext";
 
 const ProductPage = () => {
   const { id } = useParams();
-  // const [selectedProduct, setSelectedProduct] = useState(null);
-  // const [suggestedItems, setSuggestedItems] = useState([]);
-
   const { itemQuantity, setItemQuantity, addToCart, selectedItem, setSelectedItem, suggestedItems, setSuggestedItems, userData, allItems
   } = useAppContext();
   console.log(selectedItem);
 
   useEffect(() => {
-    document.title = selectedItem ? `${selectedItem?.name}` : "eKart" // Use a fallback if selectedItem is undefined
+    document.title = selectedItem ? `${selectedItem?.name}` : "eKart"
   }, [selectedItem]);
 
-  // console.log("all Items: ", allItems);
-
   useEffect(() => {
-    // const selectedItem = Data.find((item) => item._id === Number(id));
-    // setSelectedProduct(selectedItem);
     setSelectedItem(allItems.find((item) => item._id === id));
     // console.log('selectedItem: ',selectedItem);
 
@@ -32,11 +24,13 @@ const ProductPage = () => {
 
   // console.log("userData: ", userData);
 
-  // if (!userData) {
-  //   console.log("no user logged in");
-  // }
-
   // console.log(selectedItem, "suggested items: ", suggestedItems);
+
+  console.log(selectedItem?.quantity);
+
+  console.log("userData: ", userData?.userCart?.cart);
+
+
 
   if (!selectedItem) {
     return <div className="text-center text-gray-500 mt-10">Product not found</div>;
@@ -73,7 +67,7 @@ const ProductPage = () => {
           <p className="text-lg text-gray-600 mt-4">{selectedItem.description}</p>
           <p className="text-3xl text-indigo-600 font-bold mt-6">${selectedItem.price}</p>
           <p className={`text-lg font-semibold mt-4 ${selectedItem.stock ? "text-green-500" : "text-red-500"}`}>
-            {selectedItem.stock ? "In Stock" : "Out of Stock"}
+            {selectedItem?.quantity >= 1 ? "In Stock" : "Out of Stock"}
           </p>
         </div>
 

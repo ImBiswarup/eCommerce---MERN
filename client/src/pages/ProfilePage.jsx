@@ -2,15 +2,36 @@ import React, { useEffect, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 // import Cookies from "js-cookie";
 // import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 const ProfilePage = () => {
-  const [addedItens, setAddedItens] = useState([])
+  const [addedItems, setAddedItems] = useState([])
   const navigate = useNavigate()
+  const { userId } = useParams();
   const { userData, Logout, allItems, cartItems, setCartItems,
-    wishlistItems, setWishlistItems, fetchUserCart, loading, setLoading, RemoveFromCart, selectedItem, sellerProducts, setsellerProducts } = useAppContext();
+    wishlistItems, setWishlistItems, fetchUserCart, loading, setLoading, RemoveFromCart, selectedItem, sellerProducts, setsellerProducts, getUserDetails } = useAppContext();
 
-  console.log(allItems);
+  console.log("allItems: ", allItems);
+  console.log("user: ", userData);
+  console.log("userData.userCart.cart",
+    userData?.userCart?.cart.map((item) => {
+      return item
+    }));
+  console.log("userCartItemIds: ", cartItems);
+
+  const userCartItems = allItems.filter((item) => item?._id.includes(userData?.userCart?.cart.item));
+
+  console.log("userCartItems: ", userCartItems);
+
+  // console.log(allItems.map((item) => {
+  //   return item?._id;
+  // }));
+
+
+  useEffect(() => {
+    // console.log(userId);
+    getUserDetails(userId);
+  }, [userId]);
 
   // const userAddedItems = allItems?.filter((item) => item?._id === userData?.addedItems?._id)
   // console.log(userAddedItems?.length);
@@ -18,7 +39,7 @@ const ProfilePage = () => {
   const userAddedItems = allItems?.filter((item) =>
     userData?.addedItems?.includes(item?._id)
   );
-  console.log(userAddedItems);
+  console.log("userAddedItems: ", userAddedItems);
 
   if (!userData || loading) {
     return <div>Loading...</div>;
@@ -30,11 +51,11 @@ const ProfilePage = () => {
       <div className="lg:w-1/4 bg-gray-800 text-white p-6 lg:block hidden">
         <div className="text-center mb-8">
           <img
-            src={userData.imageUrl || "https://via.placeholder.com/150"}
+            src={userData.userImageUrl || "https://via.placeholder.com/150"}
             alt="User Avatar"
             className="w-32 h-32 rounded-full mx-auto"
           />
-          <h2 className="mt-4 text-xl font-semibold">{userData.name}</h2>
+          <h2 className="mt-4 text-xl font-semibold">{userData.username}</h2>
         </div>
         <ul className="space-y-4">
           <li>
@@ -61,7 +82,7 @@ const ProfilePage = () => {
           <div className="flex flex-wrap gap-4">
             <div className="flex gap-2">
               <p className="font-medium text-gray-700">Username:</p>
-              <p>{userData.name}</p>
+              <p>{userData.username}</p>
             </div>
             <div className="flex gap-2">
               <p className="font-medium text-gray-700">Email:</p>
@@ -94,7 +115,7 @@ const ProfilePage = () => {
                             className="w-16 h-16 object-cover"
                           />
                           <div>
-                            <p className="font-medium text-gray-700">{item?.item?.name || "Unknown Item"}</p>
+                            <p className="font-medium text-gray-700">{item?.name || "Unknown Item"}</p>
                             <p className="text-sm text-gray-500">
                               ${item?.item?.price?.toFixed(2) || "0.00"}
                             </p>
@@ -191,6 +212,12 @@ const ProfilePage = () => {
                             <p className="font-medium text-gray-700">{product.name || "Unknown Product"}</p>
                             <p className="text-sm text-gray-500">
                               ${product.price?.toFixed(2) || "0.00"}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-gray-700">Quantity</p>
+                            <p className="text-sm text-center text-gray-500">
+                              {product?.quantity || "NIL"}
                             </p>
                           </div>
                         </div>

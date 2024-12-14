@@ -71,17 +71,15 @@ const loginHandler = async (req, res) => {
 
     user.token = token;
     await user.save();
- 
+
     console.log(user);
 
-    res.status(200).json({ user, message: "Login successful.", token });
+    res.status(200).json({ user, message: "Login successful." });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 };
-
-
 
 const getCartItems = async (req, res) => {
   try {
@@ -97,12 +95,13 @@ const getCartItems = async (req, res) => {
   }
 };
 
-
 const addToCart = async (req, res) => {
   const { itemQuantity, cartItem } = req.body;
 
+  console.log('cartItem: ', cartItem);
+
   try {
-    const user = req.user; // Assuming user is populated by auth middleware
+    const user = req.user;
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -184,6 +183,28 @@ const getAllUsers = async (req, res) => {
   // console.log(allUsers);
   return res.json(allUsers);
 };
+
+const getActualUser = async (req, res) => {
+  try {
+    console.log("Params received:", req.params); // Debugging step
+    const { userId } = req.params; // Extract userId
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+    // Fetch the user
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error in getActualUser:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const getAllItems = async (req, res) => {
   const allItems = await Item.find({})
   // console.log(allItems);
@@ -193,4 +214,4 @@ const getAllItems = async (req, res) => {
 
 
 
-module.exports = { loginHandler, signupHandler, addToCart, removeFromCart, getAllUsers, getCartItems, getAllItems };
+module.exports = { loginHandler, signupHandler, addToCart, removeFromCart, getAllUsers, getCartItems, getAllItems, getActualUser };

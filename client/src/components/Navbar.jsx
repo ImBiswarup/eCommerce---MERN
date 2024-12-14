@@ -1,21 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaRegUser, FaBars, FaShoppingCart } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import Cart_Sidebar from "./Cart_Sidebar";
-import UserAuthModal from "./UserAuthModal";
-import Cookies from "js-cookie"
+import UserAuthModal from "./userAuthModal";
+
 
 
 const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [menuOpen, setMenuOpen] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [token, setToken] = useState('')
-    const { userData } = useAppContext();
+    const { userData, isModalOpen, setIsModalOpen } = useAppContext();
 
-    console.log(userData?.role);
+    console.log("user : ", userData);
 
     // useEffect(() => {
     //     const receivedToken = Cookies.get("token");

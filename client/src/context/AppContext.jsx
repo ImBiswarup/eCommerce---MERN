@@ -3,12 +3,16 @@ export const Appcontext = createContext();
 import Cookies from 'js-cookie';
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import { useParams } from 'react-router-dom';
 const AppContext = ({ children }) => {
+  const userId = useParams()
   const [user, setUser] = useState('')
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [image, setImage] = useState('')
+  const [quantity, setQuantity] = useState('')
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [userData, setUserData] = useState(null);
   const [allItems, setAllItems] = useState([]);
   const [cartItems, setCartItems] = useState([]);
@@ -19,7 +23,8 @@ const AppContext = ({ children }) => {
   const [sellerProducts, setsellerProducts] = useState([])
   const [loading, setLoading] = useState(true);
   const [actulaUser, setActulaUser] = useState([])
-  const [role, setRole] = useState('User');
+  const [role, setRole] = useState('Customer');
+  const [currentScreen, setCurrentScreen] = useState("signup");
 
 
   const [name, setName] = useState('');
@@ -30,53 +35,103 @@ const AppContext = ({ children }) => {
 
   const apiUrl = process.env.VITE_API_URL;
 
-  useEffect(() => {
-    const token = Cookies.get('token');
-    if (!token) {
-      console.log('no token');
+  // useEffect(() => {
+  //   const token = Cookies.get('token');
+  //   if (!token) {
+  //     console.log('no token');
+  //   }
+  //   if (token) {
+  //     try {
+  //       const decoded = jwtDecode(token);
+  //       console.log("Decoded token value : ", decoded);
+  //       setUserData(decoded);
+  //     } catch (error) {
+  //       console.error("Error decoding token:", error);
+  //     }
+  //   }
+  // }, []);
+
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    // console.log({ username, email, password });
+    try {
+      const response = await axios.post(`${apiUrl}/api/user/signup`, {
+        username, email, password, role
+      });
+      console.log(response.data);
+      setCurrentScreen("login");
+    } catch (error) {
+      alert(`Signup failed: ${error.message}`);
     }
-    if (token) {
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${apiUrl}/api/user/login`, {
+        email, password
+      })
+      console.log(response.data);
+      setUser(response.data)
+      setIsModalOpen(false);
+      alert(`Welcome ${response.data.user.username}`);
+      Cookies.set('token', response.data.user.token)
+    } catch (error) {
+      alert(`Login failed: ${error.message}`);
+    }
+  };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const token = Cookies.get("token");
+      if (!token) {
+        console.log("no token");
+        return;
+      }
+
       try {
-        const decoded = jwtDecode(token);
-        console.log("Decoded token value : ", decoded);
+        const decoded = await jwtDecode(token); // jwtDecode is synchronous, but this shows the pattern
+        console.log("Decoded token value:", decoded);
         setUserData(decoded);
       } catch (error) {
         console.error("Error decoding token:", error);
       }
-    }
-  }, []);
-
-  useEffect(() => {
-    const getTheUser = async () => {
-      try {
-        const receivedToken = Cookies.get("token");
-        console.log("receivedToken: ", receivedToken);
-
-        if (!receivedToken) {
-          console.warn("No token found in cookies.");
-          return;
-        }
-
-        // Fetch all users
-        const res = await axios.get(`${apiUrl}/api/user/allUsers`);
-        console.log(res.data);
-
-        // Find the user based on the token
-        const foundUser = res.data.find((user) => user.token === receivedToken);
-
-        if (foundUser) {
-          console.log("User found: ", foundUser);
-          setActulaUser(foundUser);
-        } else {
-          console.warn("User with the received token not found.");
-        }
-      } catch (error) {
-        console.error("Error fetching user data: ", error.message);
-      }
     };
 
-    getTheUser();
-  }, []); // Empty dependency array ensures it runs only once on mount
+    fetchUserData();
+  }, []);
+
+  // useEffect(() => {
+  //   const getTheUser = async () => {
+  //     try {
+  //       const receivedToken = Cookies.get("token");
+  //       console.log("receivedToken: ", receivedToken);
+
+  //       if (!receivedToken) {
+  //         console.warn("No token found in cookies.");
+  //         return;
+  //       }
+
+  //       // Fetch all users
+  //       const res = await axios.get(`${apiUrl}/api/user/allUsers`);
+  //       console.log(res.data);
+
+  //       // Find the user based on the token
+  //       const foundUser = res.data.find((user) => user.token === receivedToken);
+
+  //       if (foundUser) {
+  //         console.log("User found: ", foundUser);
+  //         setActulaUser(foundUser);
+  //       } else {
+  //         console.warn("User with the received token not found.");
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching user data: ", error.message);
+  //     }
+  //   };
+
+  //   getTheUser();
+  // }, []); // Empty dependency array ensures it runs only once on mount
 
   // useEffect(() => {
   //   const getUserDetails = async () => {
@@ -115,6 +170,22 @@ const AppContext = ({ children }) => {
   //   getUserDetails();
   // }, []);
 
+  const getUserDetails = async (userId) => {
+    try {
+      console.log(userId);
+      const res = await axios.get(`${apiUrl}/api/user/user/${userId}`);
+      console.log("User Details:", res.data);
+      setUserData(res.data);
+      setCartItems(res.data?.userCart?.cart);
+      setsellerProducts(res.data?.user?.addedItems || []);
+      // setCartItems(res.data?.userCart.cart.item || []);
+      setWishlistItems(userData?.userCart?.wishlist || []);
+      console.log("sellerProducts: ", sellerProducts);
+    } catch (error) {
+      console.error("Error fetching user details:", error.message);
+    }
+  };
+
   const Logout = () => {
     Cookies.remove('token');
     window.location.href('/');
@@ -125,6 +196,7 @@ const AppContext = ({ children }) => {
   const addToCart = async () => {
     try {
       const token = Cookies.get('token'); // Ensure authentication token is sent in the headers
+      console.log('selectedItem: ', selectedItem);
       const response = await axios.post(
         `${apiUrl}/api/user/add-to-cart`,
         {
@@ -146,7 +218,7 @@ const AppContext = ({ children }) => {
     }
   };
 
-  const fetchUserCart = async () => {
+  const fetchUserCart = async (userId) => {
     try {
       if (!userData) return;
 
@@ -156,14 +228,14 @@ const AppContext = ({ children }) => {
         return;
       }
 
-      const response = await axios.get(`${apiUrl}/api/user/getItem`, {
+      const response = await axios.get(`${apiUrl}/api/user/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      // console.log("cart items: ", response.data);
+      // console.log("full user object: ", response.data);
 
-      setCartItems(response.data.cart || []);
-      setWishlistItems(userData?.userCart?.wishlist || []);
+      // setCartItems(response.data.cart || []);
+      // setWishlistItems(userData?.userCart?.wishlist || []);
     } catch (error) {
       console.error("Error fetching cart items:", error);
     } finally {
@@ -232,6 +304,7 @@ const AppContext = ({ children }) => {
           price,
           imageUrl,
           category,
+          quantity,
           description,
         },
         {
@@ -255,7 +328,11 @@ const AppContext = ({ children }) => {
       email, setEmail,
       password, setPassword,
       image, setImage,
+      handleLogin, handleSignup,
+      isModalOpen, setIsModalOpen,
+      quantity, setQuantity,
       userData, setUserData,
+      currentScreen, setCurrentScreen,
       Logout,
       itemQuantity, setItemQuantity,
       addToCart, RemoveFromCart,
@@ -271,7 +348,7 @@ const AppContext = ({ children }) => {
       imageUrl, setImageUrl,
       category, setCategory,
       description, setdescription,
-      addItems
+      addItems, getUserDetails
     }}>
       {children}
     </Appcontext.Provider>

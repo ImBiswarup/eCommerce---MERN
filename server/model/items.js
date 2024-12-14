@@ -25,6 +25,11 @@ const itemSchema = new mongoose.Schema({
     required: true,
     enum: ["Electronics", "Clothing", "Home Appliances", "Books", "Toys", "Other"],
   },
+  quantity: {
+    type: Number,
+    required: true,
+    minimum: 1
+  },
   description: {
     type: String,
     required: true,

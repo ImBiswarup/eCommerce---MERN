@@ -1,10 +1,7 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
-import axios from "axios";
-import Cookies from 'js-cookie';
 
 const UserAuthModal = ({ setIsModalOpen }) => {
-    const [currentScreen, setCurrentScreen] = useState("signup");
     const apiUrl = process.env.VITE_API_URL;
 
     const {
@@ -13,37 +10,14 @@ const UserAuthModal = ({ setIsModalOpen }) => {
         email, setEmail,
         password, setPassword,
         image, setImage,
-        role, setRole
+        role, setRole,
+        handleLogin, handleSignup,
+        currentScreen, setCurrentScreen
     } = useAppContext();
 
-    const handleSignup = async (e) => {
-        e.preventDefault();
-        // console.log({ username, email, password });
-        try {
-            const response = await axios.post(`${apiUrl}/api/user/signup`, {
-                username, email, password, role
-            });
-            console.log(response.data);
-            setCurrentScreen("login");
-        } catch (error) {
-            alert(`Signup failed: ${error.message}`);
-        }
-    };
+    console.log(role);
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await axios.post(`${apiUrl}/api/user/login`, {
-                email, password
-            })
-            setUser(response.data)
-            setIsModalOpen(false);
-            alert(`Welcome ${response.data.user.username}`);
-            Cookies.set('token', response.data.token)
-        } catch (error) {
-            alert(`Login failed: ${error.message}`);
-        }
-    };
+
 
     return (
         <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">

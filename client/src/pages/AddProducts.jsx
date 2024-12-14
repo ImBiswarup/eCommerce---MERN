@@ -15,10 +15,11 @@ const AddProducts = () => {
         price, setPrice,
         imageUrl, setImageUrl,
         category, setCategory,
+        quantity, setQuantity,
         description, setdescription, addItems } = useAppContext();
 
     const { userData } = useAppContext();
-    console.log(userData?.role);
+    // console.log(userData?.role);
 
     const categories = [
         "Electronics",
@@ -29,49 +30,56 @@ const AddProducts = () => {
         "Other",
     ];
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
 
-        // Basic Validation
-        if (!name || !price || !category || !description) {
-            alert("Please fill all required fields!");
-            return;
-        }
+    //     // Basic Validation
+    //     if (!name || !price || !category || !description) {
+    //         alert("Please fill all required fields!");
+    //         return;
+    //     }
 
-        if (!categories.includes(category)) {
-            alert("Invalid category selected!");
-            return;
-        }
+    //     if (!categories.includes(category)) {
+    //         alert("Invalid category selected!");
+    //         return;
+    //     }
 
-        const defaultImageUrl = "https://res.cloudinary.com/djrdw0sqz/image/upload/v1725100842/myImg_q3lyty.jpg";
-        const payload = {
-            name,
-            price,
-            imageUrl: imageUrl || defaultImageUrl,
-            category,
-            description,
-        };
+    //     const defaultImageUrl = "https://res.cloudinary.com/djrdw0sqz/image/upload/v1725100842/myImg_q3lyty.jpg";
 
-        try {
-            const response = await axios.post(`${apiUrl}/api/item/add-items`, payload);
-            console.log(response.data);
-            alert('Product added successfully!');
-            setName('');
-            setPrice('');
-            setImageUrl('');
-            setCategory('');
-            setdescription('');
-        } catch (error) {
-            console.error('Error adding product:', error);
-            alert('Failed to add product.');
-        }
-    };
+    //     const payload = {
+    //         name,
+    //         price: parseFloat(price),
+    //         imageUrl: imageUrl || defaultImageUrl,
+    //         category,
+    //         quantity: Number(quantity),
+    //         description,
+    //     };
+
+    //     try {
+    //         const response = await axios.post(`${apiUrl}/api/item/add-items`, payload, {
+    //             headers: { Authorization: `Bearer ${userData?.token}` }, // Include token if required by the API
+    //         });
+    //         console.log(response.data);
+    //         alert('Product added successfully!');
+    //         // Clear form fields
+    //         setName('');
+    //         setPrice('');
+    //         setImageUrl('');
+    //         setQuantity('');
+    //         setCategory('');
+    //         setdescription('');
+    //     } catch (error) {
+    //         console.error('Error adding product:', error);
+    //         alert(error?.response?.data?.message || 'Failed to add product.');
+    //     }
+    // };
+
 
     return (
         userData?.role === "Seller" ? (
             <div className="mt-20 text-black container">
                 <h1 className="text-2xl font-bold mb-4">Add Product</h1>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={addItems} className="space-y-4">
                     <div>
                         <label className="block font-semibold">Name:</label>
                         <input
@@ -103,6 +111,15 @@ const AddProducts = () => {
                         />
                     </div>
                     <div>
+                        <label className="block font-semibold">Item Quantity</label>
+                        <input
+                            type="number"
+                            value={quantity}
+                            onChange={(e) => setQuantity(Number(e.target.value))}
+                            className="border px-4 py-2 w-full"
+                        />
+                    </div>
+                    <div>
                         <label className="block font-semibold">Category:</label>
                         <select
                             value={category}
@@ -129,7 +146,7 @@ const AddProducts = () => {
                         ></textarea>
                     </div>
                     <button
-                        onClick={addItems}
+                        // onClick={addItems}
                         type="submit"
                         className="bg-blue-500 text-white px-6 py-2 rounded hover:bg-blue-600"
                     >
