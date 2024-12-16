@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const itemSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true,
+    required: [true, "Item name is required."],
   },
   price: {
     type: Number,
-    required: true,
-    min: 0,
+    required: [true, "Price is required."],
+    min: [0, "Price cannot be negative."],
   },
   imageUrl: {
     type: String,
@@ -22,26 +22,44 @@ const itemSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: true,
+    required: [true, "Category is required."],
     enum: ["Electronics", "Clothing", "Home Appliances", "Books", "Toys", "Other"],
   },
   quantity: {
     type: Number,
-    required: true,
-    minimum: 1
+    required: [true, "Quantity is required."],
+    min: [1, "Quantity must be at least 1."],
   },
   description: {
     type: String,
-    required: true,
-    maxlength: 500,
+    required: [true, "Description is required."],
+    maxlength: [500, "Description cannot exceed 500 characters."],
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    required: [true, "CreatedBy is required."],
+  },
+  stockStatus: {
+    type: String,
+    enum: ["In Stock", "Out of Stock"],
+    default: function () {
+      return this.quantity > 0 ? "In Stock" : "Out of Stock";
+    },
+  },
+  discount: {
+    type: Number,
+    min: [0, "Discount cannot be negative."],
+    max: [100, "Discount cannot exceed 100%."],
+    default: 0,
   },
 }, {
   timestamps: true,
+  toJSON: { virtuals: true },
+});
+
+itemSchema.virtual('finalPrice').get(function () {
+  return this.price * (1 - this.discount / 100);
 });
 
 const Item = mongoose.model('Item', itemSchema);

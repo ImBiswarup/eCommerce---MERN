@@ -25,7 +25,7 @@ const addItems = async (req, res) => {
             category,
             quantity,
             description,
-            createdBy: userId, 
+            createdBy: userId,
         });
 
         console.log(userId, newItem);
@@ -65,6 +65,43 @@ const getItems = async (req, res) => {
     }
 };
 
+const getUserItems = async (req, res) => {
+    try {
+        const { user } = (req.user);
+
+        console.log(req.user);
+
+        if (user?.role === "customer") {
+            const fetchedAddedItemId = await Item.find({ itemId: user?.userCart })
+
+            if (!fetchedAddedItemId) {
+                return res.status(404).json({ message: ' Item not found.' });
+            }
+        }
+
+        if (user?.role === "seller") {
+            const fetchedAddedItemId = await Item.find({ itemId: user?.addedItems })
+
+            if (!fetchedAddedItemId) {
+                return res.status(404).json({ message: ' Item not found.' });
+            }
+        }
+
+        // console.log(fetchedItemId);
+
+        if (!fetchedItemId) {
+            return res.status(400).json({ message: "Invalid cart item data." });
+        }
+
+        return res.json({ items: fetchedItemId });
+
+    } catch (error) {
+        console.error("Error fetching user items:", error);
+        return res.status(500).json({ message: "Failed to fetch items.", error: error.message });
+    }
+};
+
+
 const deleteItems = async (req, res) => {
     try {
         const { itemName } = req.body;
@@ -85,4 +122,4 @@ const deleteItems = async (req, res) => {
 };
 
 
-module.exports = { addItems, getItems, deleteItems };
+module.exports = { addItems, getItems, deleteItems, getUserItems };
