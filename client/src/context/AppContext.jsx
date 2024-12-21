@@ -35,21 +35,21 @@ const AppContext = ({ children }) => {
 
   const apiUrl = process.env.VITE_API_URL;
 
-  // useEffect(() => {
-  //   const token = Cookies.get('token');
-  //   if (!token) {
-  //     console.log('no token');
-  //   }
-  //   if (token) {
-  //     try {
-  //       const decoded = jwtDecode(token);
-  //       console.log("Decoded token value : ", decoded);
-  //       setUserData(decoded);
-  //     } catch (error) {
-  //       console.error("Error decoding token:", error);
-  //     }
-  //   }
-  // }, []);
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (!token) {
+      console.log('no token');
+    }
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        console.log("Decoded token value : ", decoded);
+        setUserData(decoded);
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    }
+  }, []);
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -90,108 +90,23 @@ const AppContext = ({ children }) => {
       }
 
       try {
-        const decoded = await jwtDecode(token); // jwtDecode is synchronous, but this shows the pattern
+        const decoded = await jwtDecode(token); 
         console.log("Decoded token value:", decoded);
-        setUserData(decoded);
       } catch (error) {
         console.error("Error decoding token:", error);
+
       }
     };
 
     fetchUserData();
   }, []);
 
-  // useEffect(() => {
-  //   const getTheUser = async () => {
-  //     try {
-  //       const receivedToken = Cookies.get("token");
-  //       console.log("receivedToken: ", receivedToken);
-
-  //       if (!receivedToken) {
-  //         console.warn("No token found in cookies.");
-  //         return;
-  //       }
-
-  //       // Fetch all users
-  //       const res = await axios.get(`${apiUrl}/api/user/allUsers`);
-  //       console.log(res.data);
-
-  //       // Find the user based on the token
-  //       const foundUser = res.data.find((user) => user.token === receivedToken);
-
-  //       if (foundUser) {
-  //         console.log("User found: ", foundUser);
-  //         setActulaUser(foundUser);
-  //       } else {
-  //         console.warn("User with the received token not found.");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching user data: ", error.message);
-  //     }
-  //   };
-
-  //   getTheUser();
-  // }, []); // Empty dependency array ensures it runs only once on mount
-
-  // useEffect(() => {
-  //   const getUserDetails = async () => {
-  //     try {
-  //       const token = Cookies.get("token");
-
-  //       if (!token) {
-  //         console.warn("No token found in cookies.");
-  //         return;
-  //       }
-
-  //       // Decode the token
-  //       const decoded = jwtDecode(token);
-  //       console.log("Decoded token:", decoded);
-  //       setUserData(decoded);
-
-  //       // Fetch all users
-  //       const res = await axios.get(`${apiUrl}/api/user/allUsers`);
-  //       console.log("All users fetched:", res.data);
-
-  //       // Find the user based on the token
-  //       const foundUser = res.data.find((user) => user.token === token);
-
-  //       if (foundUser) {
-  //         console.log("User found:", foundUser);
-  //         setUserData(foundUser);
-  //         setsellerProducts(foundUser?.addedItems)
-  //         console.log(sellerProducts);
-  //       } else {
-  //         console.warn("User with the token not found in database.");
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching or decoding token:", error.message);
-  //     }
-  //   };
-  //   getUserDetails();
-  // }, []);
-
-  const getUserDetails = async (userId) => {
-    try {
-      console.log(userId);
-      const res = await axios.get(`${apiUrl}/api/user/user/${userId}`);
-      console.log("User Details:", res.data);
-      setUserData(res.data);
-      setCartItems(res.data?.userCart?.cart);
-      setsellerProducts(res.data?.user?.addedItems || []);
-      // setCartItems(res.data?.userCart.cart.item || []);
-      setWishlistItems(userData?.userCart?.wishlist || []);
-      console.log("sellerProducts: ", sellerProducts);
-    } catch (error) {
-      console.error("Error fetching user details:", error.message);
-    }
-  };
 
   const Logout = () => {
     Cookies.remove('token');
     window.location.href('/');
   };
 
-  // console.log(userData?.userCart);
 
   const addToCart = async () => {
     try {
@@ -218,32 +133,6 @@ const AppContext = ({ children }) => {
     }
   };
 
-  const fetchUserCart = async (userId) => {
-    try {
-      if (!userData) return;
-
-      const token = Cookies.get("token");
-      if (!token) {
-        console.error("No token found.");
-        return;
-      }
-
-      const response = await axios.get(`${apiUrl}/api/user/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // console.log("full user object: ", response.data);
-
-      // setCartItems(response.data.cart || []);
-      // setWishlistItems(userData?.userCart?.wishlist || []);
-    } catch (error) {
-      console.error("Error fetching cart items:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // console.log(selectedItem);
 
   const RemoveFromCart = async (cartItemId) => {
     try {
@@ -321,6 +210,44 @@ const AppContext = ({ children }) => {
   };
 
 
+  const getActualUser = async (userId) => {
+    try {
+      const res = await axios.get(`${apiUrl}/api/user/user/${userId}`);
+      console.log("userId: ", userId);
+      console.log("response from the api endpoint: ", res.data);
+      setUserData(res.data);
+      setsellerProducts(res.data?.addedItems)
+    } catch (error) {
+      console.error("Error fetching user data: ", error);
+    }
+  };
+
+  const fetchUserCart = async () => {
+    try {
+      const token = Cookies.get('token');
+      if (!token) {
+        console.error("No token found. Please log in.");
+        return;
+      }
+
+      const res = await axios.get(`${apiUrl}/api/user/getItem`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      console.log("Cart Items: ", res.data);
+      if (res.data.cart) {
+        setCartItems(res.data.cart);
+      } else {
+        console.warn("No cart items found.");
+        setCartItems([]);
+      }
+    } catch (error) {
+      console.error("Error fetching cart items:", error?.response?.data || error.message);
+    }
+  };
+
   return (
     <Appcontext.Provider value={{
       user, setUser,
@@ -348,7 +275,7 @@ const AppContext = ({ children }) => {
       imageUrl, setImageUrl,
       category, setCategory,
       description, setdescription,
-      addItems, getUserDetails
+      addItems, getActualUser
     }}>
       {children}
     </Appcontext.Provider>

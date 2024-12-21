@@ -3,7 +3,7 @@ import { FaRegUser, FaBars, FaShoppingCart } from "react-icons/fa";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAppContext } from "../context/AppContext";
 import Cart_Sidebar from "./Cart_Sidebar";
-import UserAuthModal from "./userAuthModal";
+import UserAuthModal from "./UserAuthModal";
 
 
 
@@ -13,13 +13,6 @@ const Navbar = () => {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [token, setToken] = useState('')
     const { userData, isModalOpen, setIsModalOpen } = useAppContext();
-
-    console.log("user : ", userData);
-
-    // useEffect(() => {
-    //     const receivedToken = Cookies.get("token");
-    //     setToken(receivedToken);
-    // }, [token])
 
 
     const navigate = useNavigate();

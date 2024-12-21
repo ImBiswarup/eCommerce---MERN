@@ -81,19 +81,7 @@ const loginHandler = async (req, res) => {
   }
 };
 
-const getCartItems = async (req, res) => {
-  try {
-    const user = await User.findById(req.user?.id).populate("userCart.cart.item");
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
 
-    res.status(200).json({ cart: user.userCart.cart });
-  } catch (error) {
-    console.error("Error fetching cart items:", error);
-    res.status(500).json({ message: "Internal server error." });
-  }
-};
 
 const addToCart = async (req, res) => {
   const { itemQuantity, cartItem } = req.body;
@@ -184,15 +172,28 @@ const getAllUsers = async (req, res) => {
   return res.json(allUsers);
 };
 
+const getCartItems = async (req, res) => {
+  try {
+    const user = await User.findById(req.user?.id).populate("userCart.cart.item");
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.status(200).json({ cart: user.userCart.cart });
+  } catch (error) {
+    console.error("Error fetching cart items:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 const getActualUser = async (req, res) => {
   try {
-    console.log("Params received:", req.params); // Debugging step
-    const { userId } = req.params; // Extract userId
+    console.log("Params received:", req.params); 
+    const { userId } = req.params; 
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }
 
-    // Fetch the user
     const user = await User.findById(userId).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });

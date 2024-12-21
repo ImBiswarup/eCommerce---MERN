@@ -2,11 +2,13 @@ import React, { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import UserAuthModal from "./UserAuthModal";
 import { useAppContext } from "../context/AppContext";
+import { useParams } from "react-router-dom";
 
 
 
 const Cart_Sidebar = ({ isOpen, closeSidebar }) => {
-  const { userData, fetchUserCart, cartItems, RemoveFromCart } = useAppContext();
+  // const { userId } = useParams();
+  const { userData, fetchUserCart, cartItems, RemoveFromCart, getActualUser } = useAppContext();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
 
@@ -14,9 +16,16 @@ const Cart_Sidebar = ({ isOpen, closeSidebar }) => {
     fetchUserCart()
   }, [userData, cartItems])
 
-  // const CartItemId = cartItems?.map((item) => item.item._id)
-  // console.log(CartItemId);
-  // console.log(selectedItem);
+
+
+
+  const userId = userData._id;
+  useEffect(() => {
+    if (userId) {
+      getActualUser(userId);
+      fetchUserCart();
+    }
+  }, [userId]);
 
   if (!userData) {
     return (

@@ -9,32 +9,14 @@ const ProfilePage = () => {
   const navigate = useNavigate()
   const { userId } = useParams();
   const { userData, Logout, allItems, cartItems, setCartItems,
-    wishlistItems, setWishlistItems, fetchUserCart, loading, setLoading, RemoveFromCart, selectedItem, sellerProducts, setsellerProducts, getUserDetails } = useAppContext();
-
-  console.log("allItems: ", allItems);
-  console.log("user: ", userData);
-  console.log("userData.userCart.cart",
-    userData?.userCart?.cart.map((item) => {
-      return item
-    }));
-  console.log("userCartItemIds: ", cartItems);
-
-  const userCartItems = allItems.filter((item) => item?._id.includes(userData?.userCart?.cart.item));
-
-  console.log("userCartItems: ", userCartItems);
-
-  // console.log(allItems.map((item) => {
-  //   return item?._id;
-  // }));
-
+    wishlistItems, setWishlistItems, fetchUserCart, loading, setLoading, RemoveFromCart, selectedItem, sellerProducts, setsellerProducts, getUserDetails, getActualUser } = useAppContext();
 
   useEffect(() => {
-    // console.log(userId);
-    getUserDetails(userId);
-  }, [userId]);
-
-  // const userAddedItems = allItems?.filter((item) => item?._id === userData?.addedItems?._id)
-  // console.log(userAddedItems?.length);
+    if (userId) {
+      getActualUser(userId);
+      fetchUserCart();
+    }
+  }, []);
 
   const userAddedItems = allItems?.filter((item) =>
     userData?.addedItems?.includes(item?._id)
@@ -108,29 +90,29 @@ const ProfilePage = () => {
                         key={item._id}
                         className="flex flex-col md:flex-row justify-between items-center border-b pb-4"
                       >
-                        <Link to={`/${item?.item._id}`} className="flex items-center space-x-4">
+                        <Link to={`/${item.item._id}`} className="flex items-center space-x-4">
                           <img
-                            src={item?.item?.imageUrl || "https://via.placeholder.com/50"}
-                            alt={item?.item?.name || "Product Image"}
+                            src={item.item?.imageUrl || "https://via.placeholder.com/50"}
+                            alt={item.item?.name || "Product Image"}
                             className="w-16 h-16 object-cover"
                           />
                           <div>
-                            <p className="font-medium text-gray-700">{item?.name || "Unknown Item"}</p>
+                            <p className="font-medium text-gray-700">{item.item?.name || "Unknown Item"}</p>
                             <p className="text-sm text-gray-500">
-                              ${item?.item?.price?.toFixed(2) || "0.00"}
+                              ${item.item?.price?.toFixed(2) || "0.00"}
                             </p>
                           </div>
                           <div>
                             <p className="font-medium text-gray-700">Quantity</p>
                             <p className="text-lg font-bold text-gray-500">
-                              {item?.quantity}
+                              {item.quantity}
                             </p>
                           </div>
                         </Link>
                         <div className="flex space-x-4 mt-4 md:mt-0">
                           <button
                             className="text-sm text-red-500 hover:text-red-700"
-                            onClick={() => RemoveFromCart(item.item._id)}
+                            onClick={() => RemoveFromCart(item.item?._id)}
                           >
                             Remove
                           </button>
@@ -197,7 +179,7 @@ const ProfilePage = () => {
                 <div className="mt-6">
                   <h4 className="text-xl font-semibold mb-2">Your Products</h4>
                   {userAddedItems?.length > 0 ? (
-                    userAddedItems.map((product) => (
+                    userAddedItems?.map((product) => (
                       <div
                         key={product._id}
                         className="flex justify-between items-center border-b py-2"

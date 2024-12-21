@@ -65,41 +65,72 @@ const getItems = async (req, res) => {
     }
 };
 
-const getUserItems = async (req, res) => {
+const getSellerItems = async (req, res) => {
     try {
-        const { user } = (req.user);
+        const addedItems = req.user?.addedItems;
 
-        console.log(req.user);
+        console.log("user addedItems: ", addedItems);
 
-        if (user?.role === "customer") {
-            const fetchedAddedItemId = await Item.find({ itemId: user?.userCart })
-
-            if (!fetchedAddedItemId) {
-                return res.status(404).json({ message: ' Item not found.' });
-            }
+        if (!addedItems || addedItems.length === 0) {
+            return res.status(400).json({ message: "No items found in user's addedItems." });
         }
 
-        if (user?.role === "seller") {
-            const fetchedAddedItemId = await Item.find({ itemId: user?.addedItems })
+        const fetchedAddedItems = await Item.find({ _id: { $in: addedItems } });
+        console.log('Fetched Items:', fetchedAddedItems);
 
-            if (!fetchedAddedItemId) {
-                return res.status(404).json({ message: ' Item not found.' });
-            }
+        if (!fetchedAddedItems || fetchedAddedItems.length === 0) {
+            return res.status(404).json({ message: 'Items not found.' });
         }
 
-        // console.log(fetchedItemId);
+        const itemsWithAdditionalInfo = fetchedAddedItems.map(item => {
+            return {
+                ...item.toObject(),
+            };
+        });
 
-        if (!fetchedItemId) {
-            return res.status(400).json({ message: "Invalid cart item data." });
-        }
-
-        return res.json({ items: fetchedItemId });
-
+        return res.json({ items: itemsWithAdditionalInfo });
     } catch (error) {
-        console.error("Error fetching user items:", error);
+        console.error("Error fetching user items:", error.stack);
         return res.status(500).json({ message: "Failed to fetch items.", error: error.message });
     }
 };
+
+
+const getUserItems = async (req, res) => {
+    try {
+        const cart = req.user?.userCart?.cart;
+
+        console.log("user items: ", cart);
+
+        if (!cart || cart.length === 0) {
+            return res.status(400).json({ message: "No items found in user's cart." });
+        }
+
+        const itemIds = cart.map(cartItem => cartItem.item);
+
+        const fetchedCartItems = await Item.find({ _id: { $in: itemIds } });
+        console.log('Fetched Items:', fetchedCartItems);
+
+        if (!fetchedCartItems || fetchedCartItems.length === 0) {
+            return res.status(404).json({ message: 'Items not found.' });
+        }
+
+        const itemsWithQuantities = fetchedCartItems.map(item => {
+            const cartItem = cart.find(ci => ci.item.toString() === item._id.toString());
+            return {
+                ...item.toObject(),
+                quantity: cartItem.quantity
+            };
+        });
+
+        return res.json({ items: itemsWithQuantities });
+    } catch (error) {
+        console.error("Error fetching user items:", error.stack);
+        return res.status(500).json({ message: "Failed to fetch items.", error: error.message });
+    }
+};
+
+
 
 
 const deleteItems = async (req, res) => {
@@ -122,4 +153,4 @@ const deleteItems = async (req, res) => {
 };
 
 
-module.exports = { addItems, getItems, deleteItems, getUserItems };
+module.exports = { addItems, getItems, deleteItems, getSellerItems, getUserItems };
