@@ -4,10 +4,11 @@ const User = require("../model/user");
 const addItems = async (req, res) => {
     try {
         const { name, price, imageUrl, category, description, quantity } = req.body;
+        console.log(name, price, imageUrl, category, description, quantity);
         const userId = req.user?._id;
 
         // Validate required fields
-        if (!name || !price || !category || !description || !userId || !quantity) {
+        if (!name || !price || !category || !description || !userId || !quantity || !imageUrl) {
             return res.status(400).json({ message: "All fields are required." });
         }
 
@@ -21,12 +22,13 @@ const addItems = async (req, res) => {
         const newItem = new Item({
             name,
             price,
-            imageUrl,
+            imageUrl, 
             category,
             quantity,
             description,
             createdBy: userId,
         });
+
 
         console.log(userId, newItem);
 

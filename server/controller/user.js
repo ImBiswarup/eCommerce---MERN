@@ -63,8 +63,6 @@ const loginHandler = async (req, res) => {
       role: user?.role,
       imageUrl: user.userImageUrl,
       createdAt: user.createdAt,
-      userCart: user?.userCart,
-      addedItems: user?.addedItems,
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET);

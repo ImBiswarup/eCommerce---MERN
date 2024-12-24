@@ -6,6 +6,7 @@ const express = require('express');
 const ConnectToDB = require('./DB/Connection');
 const userRoute = require('./routes/user');
 const itemRoute = require('./routes/items');
+const paymentIntentRoute = require('./routes/payment');
 
 const app = express();
 const port = 3000;
@@ -19,5 +20,6 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use('/api/user', userRoute);
 app.use('/api/item', itemRoute);
+app.use('/api/payment', paymentIntentRoute);
 
 app.listen(port, () => console.log(`Server started on port ${port}!`));

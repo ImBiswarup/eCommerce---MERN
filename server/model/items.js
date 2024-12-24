@@ -15,7 +15,8 @@ const itemSchema = new mongoose.Schema({
     default: "https://res.cloudinary.com/djrdw0sqz/image/upload/v1725100842/myImg_q3lyty.jpg",
     validate: {
       validator: function (v) {
-        return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)$/i.test(v);
+        return /^https?:\/\/.+\.(jpg|jpeg|png|gif|webp|svg)(\?.*)?$/i
+          .test(v);
       },
       message: props => `${props.value} is not a valid image URL!`,
     },

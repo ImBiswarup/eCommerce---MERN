@@ -90,7 +90,7 @@ const AppContext = ({ children }) => {
       }
 
       try {
-        const decoded = await jwtDecode(token); 
+        const decoded = jwtDecode(token);
         console.log("Decoded token value:", decoded);
       } catch (error) {
         console.error("Error decoding token:", error);
@@ -177,7 +177,12 @@ const AppContext = ({ children }) => {
     fetchItems();
   }, [userData]);
 
-  const addItems = async () => {
+  const addItems = async (name,
+    price,
+    imageUrl,
+    category,
+    quantity,
+    description) => {
     try {
       const token = Cookies.get("token"); // Retrieve token from cookies
 
