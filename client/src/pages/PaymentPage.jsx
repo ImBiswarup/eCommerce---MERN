@@ -1,46 +1,67 @@
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { useState, useEffect } from 'react';
+import { useAppContext } from '../context/AppContext';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const stripePromise = loadStripe(process.env.VITE_STRIPE_PUBLISHABLE_KEY);
-console.log(stripePromise);
 
 const PaymentPage = () => {
     const stripe = useStripe();
     const elements = useElements();
     const [clientSecret, setClientSecret] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
-    const [selectedMethod, setSelectedMethod] = useState("card"); 
-    const [qrCodeUrl, setQrCodeUrl] = useState(null); 
+    const [selectedMethod, setSelectedMethod] = useState("card");
+    const [qrCodeUrl, setQrCodeUrl] = useState(null);
+    // const [amount, setAmount] = useState(5000);
+    const [cartItemQuantity, setCartItemQuantity] = useState([])
+    const [cartItemPrice, setCartItemPrice] = useState([])
+    const [cartAmount, setCartAmount] = useState([])
+
+    const { cartItems } = useAppContext();
+    const navigate = useNavigate();
+
+    // useEffect(() => {
+    //     if (cartItems.length > 0) {
+    //         setCartItemQuantity(cartItems.map(item => item.item.quantity));
+    //         setCartItemPrice(cartItems.map(item => item.item.price));
+    //         setCartAmount(cartItems?.reduce((total, item) => total + item.item.price * item.quantity, 0).toFixed(2))
+    //         console.log('Final amount in the payment page : ', cartAmount);
+    //     }
+    // }, [cartItems]);
 
     useEffect(() => {
-        fetch('http://localhost:3000/api/payment/create-payment-intent', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount: 5000, currency: 'inr' }),
-        })
-            .then((res) => {
-                if (!res.ok) {
-                    throw new Error(`Error: ${res.statusText}`);
-                }
-                return res.json();
-            })
-            .then((data) => {
-                setClientSecret(data.clientSecret);
-                setQrCodeUrl(data.qrCodeUrl);
-            })
-            .catch((err) => {
-                console.error(err);
-                setErrorMessage("Failed to fetch payment intent. Please try again.");
-            });
-    }, []);
-    
+        const calculatedAmount = cartItems.reduce(
+            (total, item) => total + item.item.price * item.quantity,
+            0
+        ).toFixed(2);
+        setCartAmount(calculatedAmount);
+    }, [cartItems]);
 
+
+    useEffect(() => {
+        if (cartAmount > 0) {
+            axios.post('http://localhost:3000/api/payment/create-payment-intent', {
+                amount: Math.round(cartAmount * 100), // Convert to smallest currency unit
+                currency: 'inr',
+            })
+                .then((response) => {
+                    const data = response.data;
+                    setClientSecret(data.clientSecret);
+                    setQrCodeUrl(data.qrCodeUrl);
+                })
+                .catch((error) => {
+                    console.error(error);
+                    setErrorMessage("Failed to fetch payment intent. Please try again.");
+                });
+        }
+    }, [cartAmount]);
     const handleCardPayment = async (event) => {
         event.preventDefault();
         if (!clientSecret || !stripe || !elements) {
             setErrorMessage('Stripe has not loaded or clientSecret is missing');
-            return;
+            return; f
         }
         const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
             payment_method: {
@@ -54,6 +75,7 @@ const PaymentPage = () => {
         } else if (paymentIntent.status === 'succeeded') {
             setErrorMessage("");
             alert('Payment successful!');
+            navigate('/');
         }
     };
 
@@ -68,24 +90,36 @@ const PaymentPage = () => {
                     Choose Payment Method
                 </h2>
 
+                {/* Input for Amount */}
+                <div className="mb-6">
+                    <label htmlFor="amount" className="block text-gray-700 font-medium mb-2">
+                        Amount (in INR):
+                    </label>
+                    <p
+                        id="amount"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-md bg-gray-100 text-gray-800"
+                    >
+                        Rs. {(cartAmount / 1).toFixed(2)}
+                    </p>
+                </div>
+
+
                 {/* Payment Method Selector */}
                 <div className="flex justify-center space-x-4 mb-6">
                     <button
-                        className={`py-2 px-4 rounded-md font-semibold ${
-                            selectedMethod === "card"
-                                ? "bg-blue-500 text-white"
-                                : "bg-gray-200 text-gray-700"
-                        }`}
+                        className={`py-2 px-4 rounded-md font-semibold ${selectedMethod === "card"
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-200 text-gray-700"
+                            }`}
                         onClick={() => setSelectedMethod("card")}
                     >
                         Credit/Debit Card
                     </button>
                     <button
-                        className={`py-2 px-4 rounded-md font-semibold ${
-                            selectedMethod === "qr"
-                                ? "bg-blue-500 text-white"
-                                : "bg-gray-200 text-gray-700"
-                        }`}
+                        className={`py-2 px-4 rounded-md font-semibold ${selectedMethod === "qr"
+                            ? "bg-blue-500 text-white"
+                            : "bg-gray-200 text-gray-700"
+                            }`}
                         onClick={() => setSelectedMethod("qr")}
                     >
                         QR Code
@@ -115,13 +149,12 @@ const PaymentPage = () => {
                         <button
                             type="submit"
                             disabled={!stripe || !clientSecret}
-                            className={`w-full py-2 px-4 text-white font-semibold rounded-md ${
-                                stripe && clientSecret
-                                    ? "bg-blue-500 hover:bg-blue-600"
-                                    : "bg-gray-400 cursor-not-allowed"
-                            }`}
+                            className={`w-full py-2 px-4 text-white font-semibold rounded-md ${stripe && clientSecret
+                                ? "bg-blue-500 hover:bg-blue-600"
+                                : "bg-gray-400 cursor-not-allowed"
+                                }`}
                         >
-                            Pay  Rs. 50.00
+                            Make Payment
                         </button>
                     </form>
                 )}

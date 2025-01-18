@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FaTimes } from "react-icons/fa";
 import UserAuthModal from "./UserAuthModal";
 import { useAppContext } from "../context/AppContext";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 
 
@@ -11,13 +11,11 @@ const Cart_Sidebar = ({ isOpen, closeSidebar }) => {
   const { userData, fetchUserCart, cartItems, RemoveFromCart, getActualUser } = useAppContext();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserCart()
   }, [userData, cartItems])
-
-
-
 
   const userId = userData._id;
   useEffect(() => {
@@ -123,10 +121,13 @@ const Cart_Sidebar = ({ isOpen, closeSidebar }) => {
         </div>
         <button
           className="w-full py-3 mt-4 bg-indigo-600 rounded-lg text-white hover:bg-indigo-700 transition"
-          onClick={() => { console.log(cartItems); }}
-        >
+          onClick={() => {
+            closeSidebar();
+            navigate('/item/checkout');
+          }}>
           Checkout
         </button>
+
       </div>
     </div>
   );

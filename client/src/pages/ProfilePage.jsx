@@ -6,10 +6,28 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 const ProfilePage = () => {
   const [addedItems, setAddedItems] = useState([])
+  const [cartItemQuantity, setCartItemQuantity] = useState([])
+  const [cartItemPrice, setCartItemPrice] = useState([])
+  const [cartAmount, setCartAmount] = useState([])
+
   const navigate = useNavigate()
   const { userId } = useParams();
   const { userData, Logout, allItems, cartItems, setCartItems,
     wishlistItems, setWishlistItems, fetchUserCart, loading, setLoading, RemoveFromCart, selectedItem, sellerProducts, setsellerProducts, getUserDetails, getActualUser } = useAppContext();
+
+  useEffect(() => {
+    if (cartItems.length > 0) {
+      setCartItemQuantity(cartItems.map(item => item.item.quantity));
+      setCartItemPrice(cartItems.map(item => item.item.price));
+      setCartAmount(cartItems?.reduce((total, item) => total + item.item.price * item.quantity, 0).toFixed(2))
+    }
+  }, [cartItems]);
+
+
+  console.log("Item name:", cartItems.map(item => item.item.name));
+  console.log("Item quantity:", cartItemQuantity);
+  console.log("Item price:", cartItemPrice);
+  console.log('Final amount to be paid : ', cartAmount);
 
   useEffect(() => {
     if (userId) {
@@ -27,6 +45,7 @@ const ProfilePage = () => {
     return <div>Loading...</div>;
   }
 
+
   return (
     <div className="flex flex-col lg:flex-row bg-gray-50 min-h-screen">
       {/* Sidebar */}
@@ -37,7 +56,7 @@ const ProfilePage = () => {
             alt="User Avatar"
             className="w-32 h-32 rounded-full mx-auto"
           />
-          <h2 className="mt-4 text-xl font-semibold">{userData.username}</h2>
+          <h2 className="mt-4 text-xl font-semibold">{userData.name}</h2>
         </div>
         <ul className="space-y-4">
           <li>
@@ -90,7 +109,7 @@ const ProfilePage = () => {
                         key={item._id}
                         className="flex flex-col md:flex-row justify-between items-center border-b pb-4"
                       >
-                        <Link to={`/${item.item._id}`} className="flex items-center space-x-4">
+                        <Link to={`/${item.item.id}`} className="flex items-center space-x-4">
                           <img
                             src={item.item?.imageUrl || "https://via.placeholder.com/50"}
                             alt={item.item?.name || "Product Image"}
@@ -116,15 +135,19 @@ const ProfilePage = () => {
                           >
                             Remove
                           </button>
-                          <button className="text-sm text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-md">
-                            Buy Now
-                          </button>
                         </div>
                       </div>
                     ))
                   ) : (
                     <p>Your cart is empty.</p>
                   )}
+                  <div className="container flex items-center justify-center">
+                    <button>
+                      <Link to="/item/checkout" className="text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-md">
+                        Buy Now
+                      </Link>
+                    </button>
+                  </div>
                 </div>
               </div>
 

@@ -4,8 +4,6 @@ const QRCode = require('qrcode');
 const createPaymentIntent = async (req, res) => {
     const { amount, currency } = req.body;
 
-    // console.log(stripe);
-
     try {
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
@@ -13,7 +11,7 @@ const createPaymentIntent = async (req, res) => {
         });
 
         const qrCodeUrl = await QRCode.toDataURL(
-            `upi://pay?pa=merchant@upi&pn=Merchant Name&am=${amount / 100}&cu=${currency}&mode=02`
+            `upi://pay?pa=${process.env.MERCHANT_UPI_ID}&pn=${process.env.MERCHANT_NAME}&am=${amount / 100}&cu=${currency}&mode=02`
         );
 
         res.send({
@@ -21,8 +19,10 @@ const createPaymentIntent = async (req, res) => {
             qrCodeUrl,
         });
     } catch (error) {
-        res.status(500).send({ error: error.message });
+        console.error("Error creating payment intent:", error);
+        res.status(500).send({ error: "Failed to create payment intent" });
     }
 };
+
 
 module.exports = { createPaymentIntent };

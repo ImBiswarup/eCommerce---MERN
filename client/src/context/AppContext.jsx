@@ -226,7 +226,6 @@ const AppContext = ({ children }) => {
       console.error("Error fetching user data: ", error);
     }
   };
-
   const fetchUserCart = async () => {
     try {
       const token = Cookies.get('token');
@@ -241,17 +240,29 @@ const AppContext = ({ children }) => {
         },
       });
 
-      console.log("Cart Items: ", res.data);
-      if (res.data.cart) {
-        setCartItems(res.data.cart);
-      } else {
-        console.warn("No cart items found.");
-        setCartItems([]);
-      }
+      // console.log("Cart Items: ", res.data);
+      // if (res.data?.cart) {
+      //     const cartItems = res.data.cart.map((cartItem) => ({
+      //         _id: cartItem._id, 
+      //         itemName: cartItem.item.name, 
+      //         itemPrice: Number(cartItem.item.price),
+      //         quantity: Number(cartItem.quantity), 
+      //         totalPrice: Number(cartItem.item.price) * Number(cartItem.quantity), 
+      //     }));
+
+      //     setCartItems(cartItems); 
+      // } else {
+      //     console.warn("No cart items found.");
+      //     setCartItems([]);
+      // }
+
+      setCartItems(res.data?.cart);
     } catch (error) {
       console.error("Error fetching cart items:", error?.response?.data || error.message);
     }
   };
+
+
 
   return (
     <Appcontext.Provider value={{
