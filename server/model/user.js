@@ -31,12 +31,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
-    userImageUrl: {
+    image: {
       type: String,
       required: true,
-      default:
-        "https://res.cloudinary.com/djrdw0sqz/image/upload/v1725100842/myImg_q3lyty.jpg",
+      default: "https://res.cloudinary.com/djrdw0sqz/image/upload/v1725100842/myImg_q3lyty.jpg",
     },
+
     role: {
       type: String,
       required: true,
@@ -57,7 +57,7 @@ const userSchema = new mongoose.Schema(
         type: mongoose.Schema.Types.ObjectId,
         ref: "Item",
       },
-    ], 
+    ],
     token: {
       type: String,
       unique: true,

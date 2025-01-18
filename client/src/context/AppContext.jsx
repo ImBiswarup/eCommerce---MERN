@@ -51,19 +51,25 @@ const AppContext = ({ children }) => {
     }
   }, []);
 
-  const handleSignup = async (e) => {
-    e.preventDefault();
-    // console.log({ username, email, password });
+  const handleSignup = async (username, email, password, role, imageUrl) => {
     try {
       const response = await axios.post(`${apiUrl}/api/user/signup`, {
-        username, email, password, role
+        username,
+        email,
+        password,
+        role,
+        image: imageUrl, // Pass the uploaded image URL to backend
       });
-      console.log(response.data);
+      console.log("Signup response:", response.data);
+      alert("Signup successful!");
       setCurrentScreen("login");
     } catch (error) {
-      alert(`Signup failed: ${error.message}`);
+      console.error("Error during signup:", error);
+      alert(`Signup failed: ${error.response?.data?.message || error.message}`);
     }
   };
+
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -226,6 +232,7 @@ const AppContext = ({ children }) => {
       console.error("Error fetching user data: ", error);
     }
   };
+
   const fetchUserCart = async () => {
     try {
       const token = Cookies.get('token');
@@ -240,7 +247,7 @@ const AppContext = ({ children }) => {
         },
       });
 
-      // console.log("Cart Items: ", res.data);
+      console.log("Cart Items: ", res.data);
       // if (res.data?.cart) {
       //     const cartItems = res.data.cart.map((cartItem) => ({
       //         _id: cartItem._id, 

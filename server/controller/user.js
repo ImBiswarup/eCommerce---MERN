@@ -5,30 +5,33 @@ const jwt = require("jsonwebtoken");
 
 const signupHandler = async (req, res) => {
   try {
-    const { username, email, password, role, userImageUrl } = req.body;
-    if (!username || !email || !password || !role) {
+    const { username, email, password, role, image } = req.body;
+
+    // Check for missing fields
+    if (!username || !email || !password || !role || !image) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
+    // Check if the email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ message: "Email already in use." });
     }
 
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create a new user
     const newUser = new User({
       username,
       email,
       password: hashedPassword,
       role,
-      userImageUrl,
+      image, // Use the Cloudinary URL provided in the request
       userCart: { wishlist: [], cart: [] },
     });
 
     await newUser.save();
-
-    console.log(newUser);
 
     res.status(201).json({ message: "User registered successfully." });
   } catch (error) {
@@ -36,6 +39,7 @@ const signupHandler = async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 };
+
 
 const loginHandler = async (req, res) => {
   try {
@@ -186,8 +190,8 @@ const getCartItems = async (req, res) => {
 
 const getActualUser = async (req, res) => {
   try {
-    console.log("Params received:", req.params); 
-    const { userId } = req.params; 
+    console.log("Params received:", req.params);
+    const { userId } = req.params;
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
     }

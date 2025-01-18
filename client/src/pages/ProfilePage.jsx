@@ -39,8 +39,7 @@ const ProfilePage = () => {
   const userAddedItems = allItems?.filter((item) =>
     userData?.addedItems?.includes(item?._id)
   );
-  console.log("userAddedItems: ", userAddedItems);
-
+  console.log(userData);
   if (!userData || loading) {
     return <div>Loading...</div>;
   }
@@ -52,7 +51,7 @@ const ProfilePage = () => {
       <div className="lg:w-1/4 bg-gray-800 text-white p-6 lg:block hidden">
         <div className="text-center mb-8">
           <img
-            src={userData.userImageUrl || "https://via.placeholder.com/150"}
+            src={userData.image || "https://via.placeholder.com/150"}
             alt="User Avatar"
             className="w-32 h-32 rounded-full mx-auto"
           />
@@ -143,7 +142,7 @@ const ProfilePage = () => {
                   )}
                   <div className="container flex items-center justify-center">
                     <button>
-                      <Link to="/item/checkout" className="text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-md">
+                      <Link to="/item/checkout" className={`text-white bg-green-500 hover:bg-green-600 px-4 py-2 rounded-md ${cartItems.length >= 1 ? "" : "hidden"}`}>
                         Buy Now
                       </Link>
                     </button>

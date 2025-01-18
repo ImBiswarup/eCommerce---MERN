@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { useAppContext } from "../context/AppContext";
+import axios from "axios";
 
 const UserAuthModal = ({ setIsModalOpen }) => {
-    const apiUrl = process.env.VITE_API_URL;
-
     const {
         user, setUser,
         username, setUsername,
@@ -12,11 +11,52 @@ const UserAuthModal = ({ setIsModalOpen }) => {
         image, setImage,
         role, setRole,
         handleLogin, handleSignup,
-        currentScreen, setCurrentScreen
+        currentScreen, setCurrentScreen,
+        uploadedImageUrl, setUploadedImageUrl,
+
     } = useAppContext();
 
-    console.log(role);
+    const uploadUserImageToCloudinary = async (imageFile) => {
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        formData.append("upload_preset", "eKart - eCom app"); // Replace with your actual preset
 
+        try {
+            const response = await axios.post(
+                "https://api.cloudinary.com/v1_1/djrdw0sqz/image/upload",
+                formData
+            );
+            return response.data.secure_url; // Return the secure URL of the uploaded image
+        } catch (error) {
+            console.error("Cloudinary upload error:", error);
+            return null; // Return null if the upload fails
+        }
+    };
+
+
+    const handleUserSignup = async (e) => {
+        e.preventDefault();
+
+        if (!username || !email || !password || !image) {
+            alert("Please fill all required fields!");
+            return;
+        }
+
+        try {
+            // Upload the user image to Cloudinary
+            const uploadedImageUrl = await uploadUserImageToCloudinary(image);
+            if (!uploadedImageUrl) {
+                alert("Failed to upload image. Please try again.");
+                return;
+            }
+
+            // Call the signup function with user details and uploaded image URL
+            await handleSignup(username, email, password, role, uploadedImageUrl);
+        } catch (error) {
+            console.error("Error during signup:", error);
+            alert("Signup failed. Please try again.");
+        }
+    };
 
 
     return (
@@ -50,7 +90,7 @@ const UserAuthModal = ({ setIsModalOpen }) => {
                 </div>
                 <div className="p-4">
                     {currentScreen === "signup" ? (
-                        <form onSubmit={handleSignup} className="space-y-4">
+                        <form onSubmit={handleUserSignup} className="space-y-4">
                             <div>
                                 <label
                                     htmlFor="username"
@@ -99,7 +139,6 @@ const UserAuthModal = ({ setIsModalOpen }) => {
                                     className="bg-gray-50 border text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                                 />
                             </div>
-
                             <div>
                                 <label
                                     htmlFor="isSeller"
@@ -115,8 +154,6 @@ const UserAuthModal = ({ setIsModalOpen }) => {
                                     Are you a seller?
                                 </label>
                             </div>
-
-
                             <div>
                                 <label
                                     htmlFor="image"
@@ -126,9 +163,9 @@ const UserAuthModal = ({ setIsModalOpen }) => {
                                 </label>
                                 <input
                                     type="file"
-                                    id="image"
+                                    id="userImage"
                                     onChange={(e) => setImage(e.target.files[0])}
-                                    // required
+                                    required
                                     className="bg-gray-50 border text-gray-900 rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
                                 />
                             </div>
@@ -150,6 +187,7 @@ const UserAuthModal = ({ setIsModalOpen }) => {
                             </p>
                         </form>
                     ) : (
+                        // Existing login form remains unchanged
                         <form onSubmit={handleLogin} className="space-y-4">
                             <div>
                                 <label
