@@ -36,20 +36,23 @@ const AppContext = ({ children }) => {
   const apiUrl = process.env.VITE_API_URL;
 
   useEffect(() => {
-    const token = Cookies.get('token');
-    if (!token) {
-      console.log('no token');
-    }
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        // console.log("Decoded token value : ", decoded);
-        setUserData(decoded);
-      } catch (error) {
-        console.error("Error decoding token:", error);
+    const fetchUserData = async () => {
+      const token = Cookies.get('token');
+      if (!token) {
+        console.log('no token');
+      }
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          // console.log("Decoded token value : ", decoded);
+          setUserData(decoded);
+        } catch (error) {
+          console.error("Error decoding token:", error);
+        }
       }
     }
-  }, []);
+    fetchUserData();
+  }, [window.location.pathname]);
 
   const handleSignup = async (username, email, password, role, imageUrl) => {
     try {
@@ -58,7 +61,7 @@ const AppContext = ({ children }) => {
         email,
         password,
         role,
-        image: imageUrl, 
+        image: imageUrl,
       });
       console.log("Signup response:", response.data);
       alert("Signup successful!");
@@ -85,25 +88,25 @@ const AppContext = ({ children }) => {
     }
   };
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const token = Cookies.get("token");
-      if (!token) {
-        console.log("no token");
-        return;
-      }
+  // useEffect(() => {
+  //   const fetchUserData = async () => {
+  //     const token = Cookies.get("token");
+  //     if (!token) {
+  //       console.log("no token");
+  //       return;
+  //     }
 
-      try {
-        const decoded = jwtDecode(token);
-        // console.log("Decoded token value:", decoded);
-      } catch (error) {
-        console.error("Error decoding token:", error);
+  //     try {
+  //       const decoded = jwtDecode(token);
+  //       // console.log("Decoded token value:", decoded);
+  //     } catch (error) {
+  //       console.error("Error decoding token:", error);
 
-      }
-    };
+  //     }
+  //   };
 
-    fetchUserData();
-  }, []);
+  //   fetchUserData();
+  // }, []);
 
 
   const Logout = () => {
