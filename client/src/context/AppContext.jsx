@@ -43,7 +43,7 @@ const AppContext = ({ children }) => {
     if (token) {
       try {
         const decoded = jwtDecode(token);
-        console.log("Decoded token value : ", decoded);
+        // console.log("Decoded token value : ", decoded);
         setUserData(decoded);
       } catch (error) {
         console.error("Error decoding token:", error);
@@ -58,7 +58,7 @@ const AppContext = ({ children }) => {
         email,
         password,
         role,
-        image: imageUrl, // Pass the uploaded image URL to backend
+        image: imageUrl, 
       });
       console.log("Signup response:", response.data);
       alert("Signup successful!");
@@ -68,8 +68,6 @@ const AppContext = ({ children }) => {
       alert(`Signup failed: ${error.response?.data?.message || error.message}`);
     }
   };
-
-
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -97,7 +95,7 @@ const AppContext = ({ children }) => {
 
       try {
         const decoded = jwtDecode(token);
-        console.log("Decoded token value:", decoded);
+        // console.log("Decoded token value:", decoded);
       } catch (error) {
         console.error("Error decoding token:", error);
 

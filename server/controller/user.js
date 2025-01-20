@@ -7,27 +7,23 @@ const signupHandler = async (req, res) => {
   try {
     const { username, email, password, role, image } = req.body;
 
-    // Check for missing fields
     if (!username || !email || !password || !role || !image) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
-    // Check if the email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ message: "Email already in use." });
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user
     const newUser = new User({
       username,
       email,
       password: hashedPassword,
       role,
-      image, // Use the Cloudinary URL provided in the request
+      image,
       userCart: { wishlist: [], cart: [] },
     });
 
@@ -39,7 +35,6 @@ const signupHandler = async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 };
-
 
 const loginHandler = async (req, res) => {
   try {
@@ -83,8 +78,6 @@ const loginHandler = async (req, res) => {
   }
 };
 
-
-
 const addToCart = async (req, res) => {
   const { itemQuantity, cartItem } = req.body;
 
@@ -96,33 +89,26 @@ const addToCart = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    // Log the incoming request data
     console.log("Incoming addToCart request:");
     console.log("Item Quantity:", itemQuantity);
-    console.log("Cart Item:", JSON.stringify(cartItem, null, 2)); // Pretty print the cartItem object
+    console.log("Cart Item:", JSON.stringify(cartItem, null, 2));
 
-    // Validate item quantity
     if (!Number.isInteger(itemQuantity) || itemQuantity <= 0) {
       return res.status(400).json({ message: "Invalid item quantity." });
     }
 
-    // Check if the item already exists in the user's cart
     const existingCartItem = user.userCart.cart.find(
       (item) => item.item.toString() === cartItem._id
     );
 
     if (existingCartItem) {
-      // Update the quantity of the existing item
       existingCartItem.quantity += itemQuantity;
     } else {
-      // Add the new item to the cart with quantity
       user.userCart.cart.push({ item: cartItem._id, quantity: itemQuantity });
     }
 
-    // Mark the cart as modified
     user.markModified("userCart.cart");
 
-    // Save the updated user data
     await user.save();
 
     res.status(200).json({
@@ -170,7 +156,6 @@ const removeFromCart = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   const allUsers = await User.find({})
-  // console.log(allUsers);
   return res.json(allUsers);
 };
 
@@ -210,11 +195,8 @@ const getActualUser = async (req, res) => {
 
 const getAllItems = async (req, res) => {
   const allItems = await Item.find({})
-  // console.log(allItems);
   return res.json(allItems);
 };
-
-
 
 
 module.exports = { loginHandler, signupHandler, addToCart, removeFromCart, getAllUsers, getCartItems, getAllItems, getActualUser };

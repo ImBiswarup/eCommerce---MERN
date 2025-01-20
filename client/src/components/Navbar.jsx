@@ -9,7 +9,9 @@ const Navbar = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [menuOpen, setMenuOpen] = useState(false);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const { userData, isModalOpen, setIsModalOpen } = useAppContext();
+    const { userData, isModalOpen, setIsModalOpen, user } = useAppContext();
+
+    console.log('user object : ', user);
 
     const navigate = useNavigate();
     const location = useLocation();

@@ -8,6 +8,7 @@ import ProfilePage from './pages/ProfilePage';
 import Navbar from './components/Navbar';
 import AddProducts from './pages/AddProducts';
 import PaymentPage from './pages/PaymentPage';
+import TrackingPage from './pages/TrackingPage';
 
 const stripePromise = loadStripe(process.env.VITE_STRIPE_PUBLISHABLE_SECRET_KEY);
 
@@ -20,6 +21,7 @@ function App() {
         <Route path='/:id' element={<ProductPage />} />
         <Route path='/u/:userId' element={<ProfilePage />} />
         <Route path='/item/add' element={<AddProducts />} />
+        <Route path='/item/track' element={<TrackingPage />} />
         <Route
           path='/item/checkout'
           element={

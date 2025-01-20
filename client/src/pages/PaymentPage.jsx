@@ -75,7 +75,7 @@ const PaymentPage = () => {
         } else if (paymentIntent.status === 'succeeded') {
             setErrorMessage("");
             alert('Payment successful!');
-            navigate('/');
+            navigate('/item/track');
         }
     };
 
