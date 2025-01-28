@@ -6,7 +6,6 @@ const ProductPage = () => {
   const { id } = useParams();
   const { itemQuantity, setItemQuantity, addToCart, selectedItem, setSelectedItem, suggestedItems, setSuggestedItems, userData, allItems, getActualUser
   } = useAppContext();
-  console.log(selectedItem);
 
   useEffect(() => {
     document.title = selectedItem ? `${selectedItem?.name}` : "eKart"
@@ -14,23 +13,11 @@ const ProductPage = () => {
 
   useEffect(() => {
     setSelectedItem(allItems.find((item) => item._id === id));
-    // console.log('selectedItem: ',selectedItem);
-
     if (selectedItem) {
       const suggestions = allItems.filter((item) => item.category === selectedItem.category && item._id !== selectedItem._id);
       setSuggestedItems(suggestions);
     }
   }, [id, allItems, selectedItem]);
-
-  // console.log("userData: ", userData);
-
-  // console.log(selectedItem, "suggested items: ", suggestedItems);
-
-  console.log(selectedItem?.quantity);
-
-  console.log("userData: ", userData?.userCart?.cart);
-
-
 
   if (!selectedItem) {
     return <div className="text-center text-gray-500 mt-10">Product not found</div>;
@@ -95,9 +82,12 @@ const ProductPage = () => {
             className="w-full bg-yellow-400 text-black font-semibold py-2 rounded-lg hover:bg-yellow-500 transition">
             Add to Cart
           </button>
-          <button className="w-full bg-orange-500 text-white font-semibold py-2 rounded-lg mt-3 hover:bg-orange-600 transition">
-            Buy Now
-          </button>
+          <Link to="/item/checkout">
+            <button className="w-full bg-orange-500 text-white font-semibold py-2 rounded-lg mt-3 hover:bg-orange-600 transition">
+              Buy Now
+            </button>
+          </Link>
+
         </div>
       </div>
 
@@ -123,7 +113,7 @@ const ProductPage = () => {
           ))}
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

@@ -22,15 +22,6 @@ const PaymentPage = () => {
     const { cartItems } = useAppContext();
     const navigate = useNavigate();
 
-    // useEffect(() => {
-    //     if (cartItems.length > 0) {
-    //         setCartItemQuantity(cartItems.map(item => item.item.quantity));
-    //         setCartItemPrice(cartItems.map(item => item.item.price));
-    //         setCartAmount(cartItems?.reduce((total, item) => total + item.item.price * item.quantity, 0).toFixed(2))
-    //         console.log('Final amount in the payment page : ', cartAmount);
-    //     }
-    // }, [cartItems]);
-
     useEffect(() => {
         const calculatedAmount = cartItems.reduce(
             (total, item) => total + item.item.price * item.quantity,

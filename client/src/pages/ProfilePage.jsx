@@ -6,40 +6,42 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 
 const ProfilePage = () => {
   const [addedItems, setAddedItems] = useState([])
+  const [cartItemName, setCartItemName] = useState([])
   const [cartItemQuantity, setCartItemQuantity] = useState([])
   const [cartItemPrice, setCartItemPrice] = useState([])
   const [cartAmount, setCartAmount] = useState([])
 
   const navigate = useNavigate()
   const { userId } = useParams();
-  const { userData, Logout, allItems, cartItems, setCartItems,
+  const { userData, handleLogout, allItems, cartItems, setCartItems,
     wishlistItems, setWishlistItems, fetchUserCart, loading, setLoading, RemoveFromCart, selectedItem, sellerProducts, setsellerProducts, getUserDetails, getActualUser } = useAppContext();
 
   useEffect(() => {
     if (cartItems.length > 0) {
       setCartItemQuantity(cartItems.map(item => item.item.quantity));
+      setCartItemName(cartItems.map(item => item.item.name));
       setCartItemPrice(cartItems.map(item => item.item.price));
       setCartAmount(cartItems?.reduce((total, item) => total + item.item.price * item.quantity, 0).toFixed(2))
     }
   }, [cartItems]);
 
 
-  console.log("Item name:", cartItems.map(item => item.item.name));
-  console.log("Item quantity:", cartItemQuantity);
-  console.log("Item price:", cartItemPrice);
-  console.log('Final amount to be paid : ', cartAmount);
-
+  // console.log("Item name:", cartItems.map(item => item.item.name));
+  // console.log("Item quantity:", cartItemQuantity);
+  // console.log("Item price:", cartItemPrice);
+  // console.log('Final amount to be paid : ', cartAmount);
+  // console.log('cart item name : ', cartItemName);
+  // console.log('cart items : ', cartItems.map(item => item.item));
   useEffect(() => {
     if (userId) {
       getActualUser(userId);
       fetchUserCart();
     }
-  }, []);
+  }, [cartItems]);
 
   const userAddedItems = allItems?.filter((item) =>
     userData?.addedItems?.includes(item?._id)
   );
-  console.log(userData);
   if (!userData || loading) {
     return <div>Loading...</div>;
   }
@@ -55,7 +57,7 @@ const ProfilePage = () => {
             alt="User Avatar"
             className="w-32 h-32 rounded-full mx-auto"
           />
-          <h2 className="mt-4 text-xl font-semibold">{userData.name}</h2>
+          <h2 className="mt-4 text-xl font-semibold">{userData.username}</h2>
         </div>
         <ul className="space-y-4">
           <li>
@@ -65,7 +67,7 @@ const ProfilePage = () => {
           </li>
           <li>
             <button
-              onClick={Logout}
+              onClick={handleLogout}
               className="w-full text-left py-2 px-4 bg-gray-700 hover:bg-red-600 rounded-md"
             >
               Logout
@@ -130,7 +132,7 @@ const ProfilePage = () => {
                         <div className="flex space-x-4 mt-4 md:mt-0">
                           <button
                             className="text-sm text-red-500 hover:text-red-700"
-                            onClick={() => RemoveFromCart(item.item?._id)}
+                            onClick={() => RemoveFromCart(item.item._id)}
                           >
                             Remove
                           </button>

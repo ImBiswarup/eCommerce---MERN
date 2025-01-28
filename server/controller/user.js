@@ -78,6 +78,23 @@ const loginHandler = async (req, res) => {
   }
 };
 
+const logoutHandler = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    user.token = '';
+    await user.save();
+
+    res.status(200).json({ message: "Logout successful." });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
 const addToCart = async (req, res) => {
   const { itemQuantity, cartItem } = req.body;
 
@@ -123,36 +140,52 @@ const addToCart = async (req, res) => {
 
 const removeFromCart = async (req, res) => {
   const { cartItemId } = req.body;
-  console.log("Cart Item:", JSON.stringify(cartItemId, null, 2));
-  console.log(cartItemId);
 
-  if (!cartItemId) {
-    return res.status(400).json({ message: "cartItemId is required." });
-  }
+  console.log("cartItemId:", cartItemId);
 
   try {
-    const user = await User.findById(req.user._id);
-    console.log(user);
+    const user = req.user;
     if (!user) {
-      return res.status(404).json({ message: "User not found." });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // Remove the cart item by filtering out the matching item
-    user.userCart.cart = user.userCart.cart.filter(
-      (cart) => cart.item.toString() !== cartItemId // Convert `cart.item` to string for comparison
+    console.log("Incoming removeFromCart request:");
+    console.log("Cart Item ID:", cartItemId);
+
+    if (!cartItemId) {
+      return res.status(400).json({ message: "cartItemId is required." });
+    }
+
+    const existingCartItem = user.userCart.cart.find(
+      (cart) => cart.item.toString() === cartItemId
     );
 
+    if (!existingCartItem) {
+      return res.status(400).json({ message: "Item not found in cart." });
+    }
+
+    // Remove the item from the cart
+    user.userCart.cart = user.userCart.cart.filter(
+      (cart) => cart.item.toString() !== cartItemId
+    );
+
+    // Mark the userCart.cart as modified
+    user.markModified("userCart.cart");
+
+    // Save changes to the database
     await user.save();
 
+    // Send updated cart in the response
     res.status(200).json({
       message: "Item removed from cart successfully.",
-      cart: user.userCart.cart, // Return the updated cart
+      cart: user.userCart.cart, // Updated cart after removal
     });
   } catch (error) {
-    console.error("Error removing item from cart:", error);
+    console.error("Error in removeFromCart:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 };
+
 
 const getAllUsers = async (req, res) => {
   const allUsers = await User.find({})
@@ -199,4 +232,4 @@ const getAllItems = async (req, res) => {
 };
 
 
-module.exports = { loginHandler, signupHandler, addToCart, removeFromCart, getAllUsers, getCartItems, getAllItems, getActualUser };
+module.exports = { loginHandler, signupHandler, logoutHandler, addToCart, removeFromCart, getAllUsers, getCartItems, getAllItems, getActualUser };

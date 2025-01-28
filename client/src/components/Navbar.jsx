@@ -11,7 +11,6 @@ const Navbar = () => {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const { userData, isModalOpen, setIsModalOpen, user } = useAppContext();
 
-    console.log(user ? "user found" : "no user found");
     const navigate = useNavigate();
     const location = useLocation();
     const isOnProfilePage = location.pathname.includes("/u");
