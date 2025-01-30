@@ -98,7 +98,7 @@ const logoutHandler = async (req, res) => {
 const addToCart = async (req, res) => {
   const { itemQuantity, cartItem } = req.body;
 
-  console.log('cartItem: ', cartItem);
+  console.log("cartItem:", cartItem);
 
   try {
     const user = req.user;
@@ -114,23 +114,36 @@ const addToCart = async (req, res) => {
       return res.status(400).json({ message: "Invalid item quantity." });
     }
 
+    const item = await Item.findById(cartItem._id);
+    if (!item) {
+      return res.status(404).json({ message: "Item not found." });
+    }
+
+    if (item.quantity < itemQuantity) {
+      return res.status(400).json({ message: "Not enough stock available." });
+    }
+
     const existingCartItem = user.userCart.cart.find(
-      (item) => item.item.toString() === cartItem._id
+      (cartItem) => cartItem.item.toString() === item._id.toString()
     );
 
     if (existingCartItem) {
       existingCartItem.quantity += itemQuantity;
     } else {
-      user.userCart.cart.push({ item: cartItem._id, quantity: itemQuantity });
+      user.userCart.cart.push({ item: item._id, quantity: itemQuantity });
     }
 
-    user.markModified("userCart.cart");
+    item.quantity -= itemQuantity;
+    item.stockStatus = item.quantity > 0 ? "In Stock" : "Out of Stock";
+    await item.save();
 
+    user.markModified("userCart.cart");
     await user.save();
 
     res.status(200).json({
-      message: "Item added to cart successfully.",
+      message: "Item added to cart successfully and stock updated.",
       cart: user.userCart.cart,
+      remainingStock: item.quantity,
     });
   } catch (error) {
     console.error("Error in addToCart:", error);
@@ -164,28 +177,31 @@ const removeFromCart = async (req, res) => {
       return res.status(400).json({ message: "Item not found in cart." });
     }
 
-    // Remove the item from the cart
+    const item = await Item.findById(cartItemId);
+    if (item) {
+      item.quantity += existingCartItem.quantity;
+      item.stockStatus = "In Stock";
+      await item.save();
+    }
+
     user.userCart.cart = user.userCart.cart.filter(
       (cart) => cart.item.toString() !== cartItemId
     );
 
-    // Mark the userCart.cart as modified
     user.markModified("userCart.cart");
 
-    // Save changes to the database
     await user.save();
 
-    // Send updated cart in the response
     res.status(200).json({
-      message: "Item removed from cart successfully.",
-      cart: user.userCart.cart, // Updated cart after removal
+      message: "Item removed from cart successfully and stock updated.",
+      cart: user.userCart.cart, 
+      remainingStock: item ? item.quantity : "N/A",
     });
   } catch (error) {
     console.error("Error in removeFromCart:", error);
     res.status(500).json({ message: "Internal server error." });
   }
 };
-
 
 const getAllUsers = async (req, res) => {
   const allUsers = await User.find({})
@@ -208,7 +224,7 @@ const getCartItems = async (req, res) => {
 
 const getActualUser = async (req, res) => {
   try {
-    console.log("Params received:", req.params);
+    // console.log("Params received:", req.params);
     const { userId } = req.params;
     if (!userId) {
       return res.status(400).json({ message: "User ID is required" });
