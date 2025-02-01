@@ -4,7 +4,7 @@ import { useAppContext } from "../context/AppContext";
 
 const ProductPage = () => {
   const { id } = useParams();
-  const { itemQuantity, setItemQuantity, addToCart, selectedItem, setSelectedItem, suggestedItems, setSuggestedItems, userData, allItems, getActualUser
+  const { itemQuantity, setItemQuantity, addToCart, selectedItem, setSelectedItem, suggestedItems, setSuggestedItems, userData, allItems,
   } = useAppContext();
 
   useEffect(() => {

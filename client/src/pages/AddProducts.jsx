@@ -3,7 +3,6 @@ import axios from 'axios';
 import { useAppContext } from '../context/AppContext';
 
 const AddProducts = () => {
-    const apiUrl = import.meta.env.VITE_API_URL;
     const [isLoading, setIsLoading] = useState(false);
 
     const {
@@ -68,7 +67,7 @@ const AddProducts = () => {
     };
 
     return userData?.role === "Seller" ? (
-        <div className="mt-20 text-black container">
+        <div className="mt-20 text-black container mx-auto max-w-2xl p-4 shadow-lg rounded-lg">
             <h1 className="text-2xl font-bold mb-4">Add Product</h1>
             <form onSubmit={addProduct} className="space-y-4">
                 <div>
@@ -152,7 +151,7 @@ const AddProducts = () => {
             )}
         </div>
     ) : (
-        <div className="flex items-center justify-center h-screen">
+        <div className="flex items-center justify-center ">
             <p className="text-3xl text-center">You are not authorized to access the content of this page...</p>
         </div>
     );

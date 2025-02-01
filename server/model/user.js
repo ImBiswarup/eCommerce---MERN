@@ -34,7 +34,6 @@ const userSchema = new mongoose.Schema(
     image: {
       type: String,
       required: true,
-      default: "https://res.cloudinary.com/djrdw0sqz/image/upload/v1725100842/myImg_q3lyty.jpg",
     },
 
     role: {

@@ -97,7 +97,6 @@ const getSellerItems = async (req, res) => {
     }
 };
 
-
 const getUserItems = async (req, res) => {
     try {
         const cart = req.user?.userCart?.cart;
@@ -131,9 +130,6 @@ const getUserItems = async (req, res) => {
         return res.status(500).json({ message: "Failed to fetch items.", error: error.message });
     }
 };
-
-
-
 
 const deleteItems = async (req, res) => {
     try {
