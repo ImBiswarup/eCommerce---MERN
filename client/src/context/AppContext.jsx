@@ -29,7 +29,7 @@ const AppContext = ({ children }) => {
   const [category, setCategory] = useState('');
   const [description, setdescription] = useState('');
 
-  const apiUrl = process.env.VITE_API_URL;
+  const apiUrl = process.env.PRODUCTION_API_URL;
 
 
   const fetchUserData = async () => {
